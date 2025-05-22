@@ -3,7 +3,15 @@
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import Logo from "./Logo";
-import { Home, Users, X, LogOut, ChevronRight, User } from "lucide-react";
+import {
+  Home,
+  Users,
+  X,
+  LogOut,
+  ChevronRight,
+  User,
+  BookOpen,
+} from "lucide-react";
 import { useState } from "react";
 
 interface SidebarProps {
@@ -30,7 +38,9 @@ const Sidebar = ({ isOpen, setIsOpen }: SidebarProps) => {
   };
 
   const isActive = (path: string) => {
-    return location.pathname === path;
+    return (
+      location.pathname === path || location.pathname.startsWith(`${path}/`)
+    );
   };
 
   return (
@@ -123,6 +133,26 @@ const Sidebar = ({ isOpen, setIsOpen }: SidebarProps) => {
                   )}
                 </Link>
               </li>
+
+              {/* Sección de Docentes */}
+              <li>
+                <Link
+                  to="/teachers"
+                  className={`flex items-center p-2 rounded-md hover:bg-gray-100 transition-colors duration-200 ${
+                    isActive("/teachers")
+                      ? "bg-[#1A2855]/10 text-[#1A2855] font-medium"
+                      : "text-gray-700"
+                  }`}
+                  onClick={closeSidebar}
+                >
+                  <BookOpen size={18} className="mr-3" />
+                  <span>Docentes</span>
+                  {isActive("/teachers") && (
+                    <ChevronRight size={16} className="ml-auto" />
+                  )}
+                </Link>
+              </li>
+
               {isAdmin && (
                 <li>
                   <Link
