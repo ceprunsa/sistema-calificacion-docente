@@ -17,22 +17,37 @@ import { db } from "../firebase/config";
 import type { Teacher, TeacherFormData } from "../types/teacher";
 import toast from "react-hot-toast";
 
-export const useTeachers = () => {
+export interface TeachersFilters {
+  curso?: string;
+  turno?: string;
+  searchTerm?: string;
+}
+
+export interface PaginatedTeachersResult {
+  teachers: Teacher[];
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+  totalCount: number;
+  currentPage: number;
+}
+
+export const useTeachers = (
+  page = 1,
+  pageSize = 10,
+  filters: TeachersFilters = {}
+) => {
   const queryClient = useQueryClient();
 
   // React Query hooks
   const teachersQuery = useQuery({
-    queryKey: ["teachers"],
-    queryFn: getTeachers,
+    queryKey: ["teachers", "paginated", page, pageSize, filters],
+    queryFn: () => getTeachersPaginated(page, pageSize, filters),
   });
 
-  const teacherByIdQuery = (id?: string) => {
-    return useQuery({
-      queryKey: ["teachers", id],
-      queryFn: () => getTeacherById(id),
-      enabled: !!id,
-    });
-  };
+  const allTeachersQuery = useQuery({
+    queryKey: ["teachers", "all"],
+    queryFn: getTeachers,
+  });
 
   const saveTeacherMutation = useMutation({
     mutationFn: saveTeacher,
@@ -55,11 +70,27 @@ export const useTeachers = () => {
     },
   });
 
+  const teacherByIdQuery = (id?: string) => {
+    return useQuery({
+      queryKey: ["teachers", id],
+      queryFn: () => getTeacherById(id),
+      enabled: !!id,
+    });
+  };
+
   return {
-    teachers: teachersQuery.data || [],
+    // Datos paginados
+    paginatedResult: teachersQuery.data,
+    teachers: teachersQuery.data?.teachers || [],
     isLoading: teachersQuery.isLoading,
     isError: teachersQuery.isError,
     error: teachersQuery.error as Error | null,
+
+    // Todos los profesores (para otros usos)
+    allTeachers: allTeachersQuery.data || [],
+    isLoadingAll: allTeachersQuery.isLoading,
+
+    // Funciones existentes
     teacherByIdQuery,
     saveTeacher: saveTeacherMutation.mutate,
     deleteTeacher: deleteTeacherMutation.mutate,
@@ -81,6 +112,69 @@ const getTeachers = async (): Promise<Teacher[]> => {
         ...doc.data(),
       } as Teacher)
   );
+};
+
+const getTeachersPaginated = async (
+  page = 1,
+  pageSize = 10,
+  filters: TeachersFilters = {}
+): Promise<PaginatedTeachersResult> => {
+  const teachersRef = collection(db, "teachers");
+  // Obtener TODOS los documentos sin filtros de servidor
+  const q = query(teachersRef, orderBy("apellidos", "asc"));
+
+  const snapshot = await getDocs(q);
+  let allTeachers = snapshot.docs.map(
+    (doc) =>
+      ({
+        id: doc.id,
+        ...doc.data(),
+      } as Teacher)
+  );
+
+  // Aplicar TODOS los filtros en el cliente
+
+  // Filtrar por curso
+  if (filters.curso) {
+    allTeachers = allTeachers.filter(
+      (teacher) => teacher.curso === filters.curso
+    );
+  }
+
+  // Filtrar por término de búsqueda
+  if (filters.searchTerm) {
+    const searchLower = filters.searchTerm.toLowerCase();
+    allTeachers = allTeachers.filter(
+      (teacher) =>
+        teacher.dni.toLowerCase().includes(searchLower) ||
+        teacher.apellidos.toLowerCase().includes(searchLower) ||
+        teacher.nombres.toLowerCase().includes(searchLower) ||
+        teacher.curso.toLowerCase().includes(searchLower)
+    );
+  }
+
+  // Filtrar por turno
+  if (filters.turno) {
+    allTeachers = allTeachers.filter(
+      (teacher) =>
+        teacher.horasPorTurno[filters.turno!] &&
+        teacher.horasPorTurno[filters.turno!] > 0
+    );
+  }
+
+  // Implementar paginación manual
+  const totalCount = allTeachers.length;
+  const startIndex = (page - 1) * pageSize;
+  const endIndex = startIndex + pageSize;
+  const paginatedTeachers = allTeachers.slice(startIndex, endIndex);
+
+  return {
+    teachers: paginatedTeachers,
+    hasNextPage: endIndex < totalCount,
+    hasPreviousPage: page > 1,
+    totalCount,
+    currentPage: page,
+  };
 };
 
 const getTeacherById = async (id?: string): Promise<Teacher | null> => {

@@ -4,7 +4,7 @@ export interface User {
   email: string;
   displayName: string | null;
   photoURL?: string | null;
-  role: "admin" | "user";
+  role: "admin" | "evaluator"; // Cambiar "user" a "evaluator"
   createdAt?: string;
   createdBy?: string;
 }
@@ -32,7 +32,7 @@ export interface UsersHookReturn {
     newRole,
   }: {
     userId: string;
-    newRole: "admin" | "user";
+    newRole: "admin" | "evaluator";
   }) => void;
   deleteUser: (id: string) => void;
   isSaving: boolean;

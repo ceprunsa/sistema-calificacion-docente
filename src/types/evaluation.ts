@@ -34,10 +34,10 @@ export interface EvaluationFormData
 // Descripciones de los niveles para cada desempeño
 export const performanceDescriptions = {
   performance1: {
-    I: "El docente no ofrece oportunidades de participación, solo dicta y no hace participar a los estudiantes.",
-    II: "El docente involucra al menos a la mitad de los estudiantes en las preguntas propuestas.",
-    III: "El docente involucra a la gran mayoría de los estudiantes en las actividades de aprendizaje propuestas.",
-    IV: "El docente involucra activamente a todos o casi todos los estudiantes en las actividades de aprendizaje.",
+    I: "El docente ofrece muy poca oportunidad de participación del estudiante, dictando solo las diapositivas.",
+    II: "El docente explica las diapositivas resaltando con un lápiz digital, involucrando a los estudiantes a través del chat",
+    III: "El docente involucra a la gran mayoría de los estudiantes en el aprendizaje y expone con ayudas gráficas, las diapositivas.",
+    IV: "El docente involucra activamente a casi todos los estudiantes, preguntando personalizadamente, al azar. Expone con ayuda de graficadores, las diapositivas.",
   },
   performance2: {
     I: "El docente propone actividades o establece interacciones que estimulan únicamente el aprendizaje reproductivo memorístico.",

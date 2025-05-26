@@ -82,7 +82,7 @@ const getEvaluationById = async (
 // Mejorar la función saveEvaluation para manejar mejor los errores
 const saveEvaluation = async (
   evaluationData: EvaluationFormData,
-  queryClient: any,
+  _queryClient: any,
   user: any
 ): Promise<TeacherEvaluation> => {
   const now = new Date().toISOString();
@@ -203,7 +203,7 @@ export const useEvaluations = () => {
 
   const deleteEvaluationMutation = useMutation({
     mutationFn: deleteEvaluation,
-    onSuccess: (deletedId, variables) => {
+    onSuccess: (deletedId, _variables) => {
       // Intentar obtener el teacherId de la evaluación eliminada desde el caché
       const evaluations =
         queryClient.getQueryData<TeacherEvaluation[]>(["evaluations"]) || [];

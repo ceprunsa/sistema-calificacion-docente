@@ -13,10 +13,10 @@ const UserForm = () => {
   const { userByIdQuery, saveUser, isSaving } = useUsers();
   const { data: existingUser, isLoading } = userByIdQuery(id);
 
-  // Cambiar el estado inicial para incluir solo email y rol
+  // Actualizar el formulario para usar "evaluator" como rol por defecto
   const [formData, setFormData] = useState<Partial<User>>({
     email: "",
-    role: "user" as const, // Especificar el tipo literal
+    role: "evaluator" as const, // Cambiar "user" a "evaluator"
   });
 
   useEffect(() => {
@@ -52,7 +52,7 @@ const UserForm = () => {
       const userData: Partial<User> = {
         ...formData,
         // Asegurar que el rol sea del tipo correcto
-        role: formData.role === "admin" ? "admin" : "user",
+        role: formData.role === "admin" ? "admin" : "evaluator",
       };
 
       // Llamar a saveUser y manejar la promesa correctamente
@@ -125,7 +125,7 @@ const UserForm = () => {
                         onChange={(e) => {
                           setFormData((prev) => ({
                             ...prev,
-                            role: e.target.checked ? "admin" : "user",
+                            role: e.target.checked ? "admin" : "evaluator", // Cambiar "user" a "evaluator"
                           }));
                         }}
                         className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"

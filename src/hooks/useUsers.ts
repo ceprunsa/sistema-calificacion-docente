@@ -11,11 +11,11 @@ import {
 } from "firebase/firestore";
 import { db } from "../firebase/config";
 import { useAuth } from "./useAuth";
-import type { User, UsersHookReturn } from "../types";
+import type { User } from "../types";
 import { useMemo } from "react";
 import toast from "react-hot-toast";
 
-export const useUsers = (): UsersHookReturn => {
+export const useUsers = (): any => {
   const queryClient = useQueryClient();
   const { createUser } = useAuth();
 
@@ -43,7 +43,7 @@ export const useUsers = (): UsersHookReturn => {
     return null;
   };
 
-  // Crear o actualizar usuario
+  // Actualizar la función saveUser para usar "evaluator" como rol por defecto
   const saveUser = async (userData: Partial<User>): Promise<Partial<User>> => {
     if (!userData.email) {
       throw new Error("El correo electrónico es requerido");
@@ -52,7 +52,7 @@ export const useUsers = (): UsersHookReturn => {
     // Asegurarse de que el rol sea del tipo correcto
     const validatedUserData: Partial<User> = {
       ...userData,
-      role: userData.role === "admin" ? "admin" : "user",
+      role: userData.role === "admin" ? "admin" : "evaluator", // Cambiar "user" a "evaluator"
     };
 
     try {
@@ -69,13 +69,13 @@ export const useUsers = (): UsersHookReturn => {
     }
   };
 
-  // Actualizar rol de usuario
+  // Actualizar el tipo en updateUserRole
   const updateUserRole = async ({
     userId,
     newRole,
   }: {
     userId: string;
-    newRole: "admin" | "user";
+    newRole: "admin" | "evaluator";
   }): Promise<void> => {
     try {
       const userRef = doc(db, "users", userId);
@@ -84,7 +84,7 @@ export const useUsers = (): UsersHookReturn => {
       });
       toast.success(
         `Rol actualizado exitosamente a ${
-          newRole === "admin" ? "Administrador" : "Usuario"
+          newRole === "admin" ? "Administrador" : "Evaluador"
         }`
       );
     } catch (error) {
@@ -122,14 +122,6 @@ export const useUsers = (): UsersHookReturn => {
     return getUserById(id);
   };
 
-  const userByIdQuery = (id?: string) => {
-    return useQuery({
-      queryKey: ["users", id],
-      queryFn: () => userByIdQueryFn(id),
-      enabled: !!id,
-    });
-  };
-
   const saveUserMutation = useMutation({
     mutationFn: saveUser,
     onSuccess: () => {
@@ -151,7 +143,16 @@ export const useUsers = (): UsersHookReturn => {
     },
   });
 
-  const memoizedUserByIdQuery = useMemo(() => userByIdQuery, []);
+  const memoizedUserByIdQuery = useMemo(
+    () => (id?: string) => {
+      return useQuery({
+        queryKey: ["users", id],
+        queryFn: () => userByIdQueryFn(id),
+        enabled: !!id,
+      });
+    },
+    []
+  );
 
   return {
     users: usersQuery.data || [],

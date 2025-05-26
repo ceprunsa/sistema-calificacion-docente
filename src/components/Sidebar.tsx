@@ -108,7 +108,7 @@ const Sidebar = ({ isOpen, setIsOpen }: SidebarProps) => {
                     : "bg-blue-100 text-blue-800 border border-blue-200"
                 }`}
               >
-                {user?.role === "admin" ? "Administrador" : "Usuario"}
+                {user?.role === "admin" ? "Administrador" : "Evaluador"}
               </span>
             </div>
           </div>

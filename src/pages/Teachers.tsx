@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { useTeachers } from "../hooks/useTeachers";
-import type { Teacher } from "../types/teacher";
+import { useTeachers, type TeachersFilters } from "../hooks/useTeachers";
+import { useTeacherEvaluationStatus } from "../hooks/useTeacherEvaluationStatus";
+import type { Teacher, CourseType } from "../types/teacher";
 import {
   Plus,
   Trash2,
@@ -13,22 +14,59 @@ import {
   Eye,
   ClipboardList,
   FileText,
+  ChevronLeft,
+  ChevronRight,
+  Filter,
 } from "lucide-react";
 import { capitalizeText } from "../utils/formatters";
+import { useAuth } from "../hooks/useAuth";
+
+const COURSE_OPTIONS: CourseType[] = [
+  "biología",
+  "cívica",
+  "filosofía",
+  "física",
+  "geografía",
+  "historia",
+  "ingles",
+  "lenguaje",
+  "literatura",
+  "matemática",
+  "psicología",
+  "química",
+  "razonamiento lógico",
+  "razonamiento matemático",
+  "razonamiento verbal",
+];
+
+const TURNO_OPTIONS = ["turno 1", "turno 2", "turno 3"];
 
 const Teachers = () => {
-  const { teachers, isLoading, isError, deleteTeacher, isDeleting } =
-    useTeachers();
   const [teacherToDelete, setTeacherToDelete] = useState<Teacher | null>(null);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize] = useState(10);
+  const [filters, setFilters] = useState<TeachersFilters>({});
+  const [showFilters, setShowFilters] = useState(false);
 
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-t-2 border-primary"></div>
-      </div>
-    );
-  }
+  const {
+    paginatedResult,
+    teachers,
+    isLoading,
+    isError,
+    deleteTeacher,
+    isDeleting,
+  } = useTeachers(currentPage, pageSize, filters);
+
+  // Obtener IDs de profesores para verificar estado de evaluación
+  const teacherIds = teachers.map((teacher) => teacher.id);
+  const { data: evaluationStatus } = useTeacherEvaluationStatus(teacherIds);
+
+  // Resetear página cuando cambien los filtros
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filters]);
+
+  const { isAdmin } = useAuth();
 
   if (isError) {
     return (
@@ -64,14 +102,43 @@ const Teachers = () => {
     setTeacherToDelete(null);
   };
 
-  // Filtrar docentes según el término de búsqueda
-  const filteredTeachers = teachers.filter(
-    (teacher) =>
-      teacher.dni.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      teacher.apellidos.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      teacher.nombres.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      teacher.curso.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const handleFilterChange = (key: keyof TeachersFilters, value: string) => {
+    setFilters((prev) => ({
+      ...prev,
+      [key]: value || undefined,
+    }));
+  };
+
+  const clearFilters = () => {
+    setFilters({});
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const getEvaluationStatusBadge = (teacherId: string) => {
+    const status = evaluationStatus?.[teacherId];
+
+    if (!status || !status.hasEvaluations) {
+      return (
+        <span className="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800 border border-red-200">
+          Sin evaluar
+        </span>
+      );
+    }
+
+    return (
+      <span className="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800 border border-green-200">
+        {status.evaluationCount} evaluación
+        {status.evaluationCount !== 1 ? "es" : ""}
+      </span>
+    );
+  };
+
+  const totalPages = paginatedResult
+    ? Math.ceil(paginatedResult.totalCount / pageSize)
+    : 0;
 
   return (
     <div className="w-full max-w-full mx-auto">
@@ -85,12 +152,12 @@ const Teachers = () => {
               type="text"
               placeholder="Buscar por DNI, nombre o curso..."
               className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              value={filters.searchTerm || ""}
+              onChange={(e) => handleFilterChange("searchTerm", e.target.value)}
             />
-            {searchTerm && (
+            {filters.searchTerm && (
               <button
-                onClick={() => setSearchTerm("")}
+                onClick={() => handleFilterChange("searchTerm", "")}
                 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
               >
                 <X size={16} />
@@ -98,30 +165,124 @@ const Teachers = () => {
             )}
           </div>
           <div className="flex gap-2">
-            <Link
-              to="/teachers/import"
+            <button
+              onClick={() => setShowFilters(!showFilters)}
               className="btn btn-secondary inline-flex items-center"
             >
-              <Upload size={18} className="mr-1 md:mr-2" />
-              <span>Importar</span>
-            </Link>
-            <Link
-              to="/teachers/new"
-              className="btn btn-primary inline-flex items-center"
-            >
-              <Plus size={18} className="mr-1 md:mr-2" />
-              <span>Nuevo</span>
-            </Link>
+              <Filter size={18} className="mr-1 md:mr-2" />
+              <span>Filtros</span>
+            </button>
+            {isAdmin && (
+              <>
+                <Link
+                  to="/teachers/import"
+                  className="btn btn-secondary inline-flex items-center"
+                >
+                  <Upload size={18} className="mr-1 md:mr-2" />
+                  <span>Importar</span>
+                </Link>
+                <Link
+                  to="/teachers/new"
+                  className="btn btn-primary inline-flex items-center"
+                >
+                  <Plus size={18} className="mr-1 md:mr-2" />
+                  <span>Nuevo</span>
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </div>
 
+      {/* Panel de filtros */}
+      {showFilters && (
+        <div className="bg-white shadow rounded-lg p-4 mb-6 border border-gray-200">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label
+                htmlFor="curso-filter"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Curso
+              </label>
+              <select
+                id="curso-filter"
+                value={filters.curso || ""}
+                onChange={(e) => handleFilterChange("curso", e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Todos los cursos</option>
+                {COURSE_OPTIONS.map((course) => (
+                  <option key={course} value={course}>
+                    {capitalizeText(course)}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label
+                htmlFor="turno-filter"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Turno
+              </label>
+              <select
+                id="turno-filter"
+                value={filters.turno || ""}
+                onChange={(e) => handleFilterChange("turno", e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Todos los turnos</option>
+                {TURNO_OPTIONS.map((turno) => (
+                  <option key={turno} value={turno}>
+                    {capitalizeText(turno)}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex items-end">
+              <button
+                onClick={clearFilters}
+                className="w-full btn btn-secondary"
+              >
+                Limpiar filtros
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Información de resultados */}
+      {paginatedResult && !isLoading && (
+        <div className="mb-4 text-sm text-gray-600">
+          Mostrando {(currentPage - 1) * pageSize + 1} -{" "}
+          {Math.min(currentPage * pageSize, paginatedResult.totalCount)} de{" "}
+          {paginatedResult.totalCount} docentes
+        </div>
+      )}
+
+      {isLoading && (
+        <div className="mb-4 text-sm text-gray-500 flex items-center">
+          <div className="w-4 h-4 animate-spin rounded-full border-2 border-gray-300 border-t-blue-600 mr-2"></div>
+          Cargando docentes...
+        </div>
+      )}
+
       {/* Vista de tarjetas para todos los tamaños de pantalla */}
       <div className="bg-white shadow rounded-lg overflow-hidden border border-gray-100">
-        {filteredTeachers.length === 0 ? (
+        {isLoading ? (
+          // Mostrar indicador de carga solo en el área de datos
+          <div className="flex justify-center items-center h-64">
+            <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-t-2 border-primary"></div>
+          </div>
+        ) : teachers.length === 0 ? (
           <div className="p-4 text-center text-gray-500">
-            {searchTerm
-              ? "No se encontraron docentes con ese criterio de búsqueda"
+            {Object.keys(filters).some(
+              (key) => filters[key as keyof TeachersFilters]
+            )
+              ? "No se encontraron docentes con los filtros aplicados"
               : "No hay docentes registrados"}
           </div>
         ) : (
@@ -141,7 +302,7 @@ const Teachers = () => {
                 Curso
               </div>
               <div className="xl:col-span-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Condición
+                Estado Evaluación
               </div>
               <div className="xl:col-span-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Total Horas
@@ -152,11 +313,11 @@ const Teachers = () => {
             </div>
 
             {/* Filas de docentes */}
-            {filteredTeachers.map((teacher, index) => (
+            {teachers.map((teacher, index) => (
               <div
                 key={teacher.id}
                 className={`p-4 xl:p-0 hover:bg-gray-50 transition-colors duration-150 ${
-                  index === filteredTeachers.length - 1 ? "rounded-b-lg" : ""
+                  index === teachers.length - 1 ? "rounded-b-lg" : ""
                 }`}
               >
                 {/* Vista para pantallas grandes (similar a tabla) */}
@@ -176,7 +337,7 @@ const Teachers = () => {
                     </span>
                   </div>
                   <div className="xl:col-span-2 text-sm text-gray-900">
-                    {teacher.condicionInstitucional}
+                    {getEvaluationStatusBadge(teacher.id)}
                   </div>
                   <div className="xl:col-span-2 text-sm text-gray-900">
                     <span className="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800 border border-green-200">
@@ -205,20 +366,24 @@ const Teachers = () => {
                     >
                       <Eye size={18} />
                     </Link>
-                    <Link
-                      to={`/teachers/${teacher.id}`}
-                      className="p-2 rounded-md text-blue-600 hover:bg-blue-50 transition-colors duration-200"
-                      title="Editar docente"
-                    >
-                      <Edit size={18} />
-                    </Link>
-                    <button
-                      onClick={() => handleDeleteClick(teacher)}
-                      className="p-2 rounded-md text-red-600 hover:bg-red-50 transition-colors duration-200"
-                      title="Eliminar docente"
-                    >
-                      <Trash2 size={18} />
-                    </button>
+                    {isAdmin && (
+                      <>
+                        <Link
+                          to={`/teachers/${teacher.id}`}
+                          className="p-2 rounded-md text-blue-600 hover:bg-blue-50 transition-colors duration-200"
+                          title="Editar docente"
+                        >
+                          <Edit size={18} />
+                        </Link>
+                        <button
+                          onClick={() => handleDeleteClick(teacher)}
+                          className="p-2 rounded-md text-red-600 hover:bg-red-50 transition-colors duration-200"
+                          title="Eliminar docente"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      </>
+                    )}
                   </div>
                 </div>
 
@@ -239,6 +404,7 @@ const Teachers = () => {
                         <span className="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800 border border-green-200">
                           {teacher.totalHoras} horas
                         </span>
+                        {getEvaluationStatusBadge(teacher.id)}
                       </div>
                     </div>
                     <div className="flex space-x-1">
@@ -263,25 +429,25 @@ const Teachers = () => {
                       >
                         <Eye size={18} />
                       </Link>
-                      <Link
-                        to={`/teachers/${teacher.id}`}
-                        className="p-2 rounded-md text-blue-600 hover:bg-blue-50 transition-colors duration-200"
-                        title="Editar docente"
-                      >
-                        <Edit size={18} />
-                      </Link>
-                      <button
-                        onClick={() => handleDeleteClick(teacher)}
-                        className="p-2 rounded-md text-red-600 hover:bg-red-50 transition-colors duration-200"
-                        title="Eliminar docente"
-                      >
-                        <Trash2 size={18} />
-                      </button>
+                      {isAdmin && (
+                        <>
+                          <Link
+                            to={`/teachers/${teacher.id}`}
+                            className="p-2 rounded-md text-blue-600 hover:bg-blue-50 transition-colors duration-200"
+                            title="Editar docente"
+                          >
+                            <Edit size={18} />
+                          </Link>
+                          <button
+                            onClick={() => handleDeleteClick(teacher)}
+                            className="p-2 rounded-md text-red-600 hover:bg-red-50 transition-colors duration-200"
+                            title="Eliminar docente"
+                          >
+                            <Trash2 size={18} />
+                          </button>
+                        </>
+                      )}
                     </div>
-                  </div>
-                  <div className="mt-2 text-sm text-gray-500">
-                    <span className="font-medium">Condición:</span>{" "}
-                    {teacher.condicionInstitucional}
                   </div>
                 </div>
               </div>
@@ -290,7 +456,65 @@ const Teachers = () => {
         )}
       </div>
 
-      {/* Modal de confirmación de eliminación */}
+      {/* Controles de paginación */}
+      {paginatedResult && totalPages > 1 && (
+        <div className="mt-6 flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={!paginatedResult.hasPreviousPage}
+              className="btn btn-secondary inline-flex items-center disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <ChevronLeft size={18} className="mr-1" />
+              Anterior
+            </button>
+
+            <div className="flex items-center space-x-1">
+              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                let pageNumber;
+                if (totalPages <= 5) {
+                  pageNumber = i + 1;
+                } else if (currentPage <= 3) {
+                  pageNumber = i + 1;
+                } else if (currentPage >= totalPages - 2) {
+                  pageNumber = totalPages - 4 + i;
+                } else {
+                  pageNumber = currentPage - 2 + i;
+                }
+
+                return (
+                  <button
+                    key={pageNumber}
+                    onClick={() => handlePageChange(pageNumber)}
+                    className={`px-3 py-2 text-sm font-medium rounded-md ${
+                      currentPage === pageNumber
+                        ? "bg-blue-600 text-white"
+                        : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
+                    }`}
+                  >
+                    {pageNumber}
+                  </button>
+                );
+              })}
+            </div>
+
+            <button
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={!paginatedResult.hasNextPage}
+              className="btn btn-secondary inline-flex items-center disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Siguiente
+              <ChevronRight size={18} className="ml-1" />
+            </button>
+          </div>
+
+          <div className="text-sm text-gray-600">
+            Página {currentPage} de {totalPages}
+          </div>
+        </div>
+      )}
+
+      {/* Modal de confirmación de eliminación - mantener igual */}
       {teacherToDelete && (
         <div className="fixed z-50 inset-0 overflow-y-auto">
           <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">

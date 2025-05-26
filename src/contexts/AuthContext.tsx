@@ -157,7 +157,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         email: userData.email,
         displayName: userData.displayName || null,
         photoURL: userData.photoURL || null,
-        role: userData.role || "user", // Default role is user
+        role: userData.role || "evaluator", // Cambiar default role a "evaluator"
         createdAt: new Date().toISOString(),
         createdBy: user?.email || "system",
       });

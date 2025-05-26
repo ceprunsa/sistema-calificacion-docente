@@ -15,6 +15,8 @@ import TeacherDetails from "./pages/TeacherDetails";
 import TeacherEvaluations from "./pages/TeacherEvaluations";
 import EvaluationForm from "./pages/EvaluationForm";
 import EvaluationDetails from "./pages/EvaluationDetails";
+// Importar el nuevo componente EvaluatorRoute
+import EvaluatorRoute from "./components/EvaluatorRoute";
 
 export const router = createBrowserRouter([
   {
@@ -70,77 +72,78 @@ export const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
+      // Actualizar las rutas de teachers para usar EvaluatorRoute en lugar de ProtectedRoute
       {
         path: "teachers",
         element: (
-          <ProtectedRoute>
+          <EvaluatorRoute>
             <Teachers />
-          </ProtectedRoute>
+          </EvaluatorRoute>
         ),
       },
       {
         path: "teachers/new",
         element: (
-          <ProtectedRoute>
+          <AdminRoute>
             <TeacherForm />
-          </ProtectedRoute>
+          </AdminRoute>
         ),
       },
       {
         path: "teachers/:id",
         element: (
-          <ProtectedRoute>
+          <AdminRoute>
             <TeacherForm />
-          </ProtectedRoute>
+          </AdminRoute>
         ),
       },
       {
         path: "teachers/:id/details",
         element: (
-          <ProtectedRoute>
+          <EvaluatorRoute>
             <TeacherDetails />
-          </ProtectedRoute>
+          </EvaluatorRoute>
         ),
       },
       {
         path: "teachers/import",
         element: (
-          <ProtectedRoute>
+          <AdminRoute>
             <TeacherImport />
-          </ProtectedRoute>
+          </AdminRoute>
         ),
       },
-      // Nuevas rutas para evaluaciones
+      // Las rutas de evaluaciones siguen siendo para evaluadores
       {
         path: "teachers/:id/evaluations",
         element: (
-          <ProtectedRoute>
+          <EvaluatorRoute>
             <TeacherEvaluations />
-          </ProtectedRoute>
+          </EvaluatorRoute>
         ),
       },
       {
         path: "teachers/:teacherId/evaluations/new",
         element: (
-          <ProtectedRoute>
+          <EvaluatorRoute>
             <EvaluationForm />
-          </ProtectedRoute>
+          </EvaluatorRoute>
         ),
       },
       {
         path: "teachers/:teacherId/evaluations/:evaluationId/edit",
         element: (
-          <ProtectedRoute>
+          <EvaluatorRoute>
             <EvaluationForm />
-          </ProtectedRoute>
+          </EvaluatorRoute>
         ),
       },
       {
         path: "teachers/:teacherId/evaluations/:evaluationId/view",
         element: (
-          <ProtectedRoute>
+          <EvaluatorRoute>
             <EvaluationDetails />
-          </ProtectedRoute>
+          </EvaluatorRoute>
         ),
       },
     ],

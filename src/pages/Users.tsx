@@ -19,6 +19,17 @@ const Users = () => {
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
   const [userToChangeRole, setUserToChangeRole] = useState<User | null>(null);
 
+  const confirmDelete = async () => {
+    if (!userToDelete || !userToDelete.id) return;
+
+    try {
+      await deleteUser(userToDelete.id);
+      setUserToDelete(null);
+    } catch (error) {
+      console.error("Error al eliminar usuario:", error);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -50,21 +61,10 @@ const Users = () => {
     setUserToChangeRole(user);
   };
 
-  const confirmDelete = async () => {
-    if (!userToDelete || !userToDelete.id) return;
-
-    try {
-      await deleteUser(userToDelete.id);
-      setUserToDelete(null);
-    } catch (error) {
-      console.error("Error al eliminar usuario:", error);
-    }
-  };
-
   const confirmChangeRole = async () => {
     if (!userToChangeRole || !userToChangeRole.id) return;
 
-    const newRole = userToChangeRole.role === "admin" ? "user" : "admin";
+    const newRole = userToChangeRole.role === "admin" ? "evaluator" : "admin"; // Cambiar "user" a "evaluator"
 
     try {
       await updateUserRole({ userId: userToChangeRole.id, newRole });
@@ -126,7 +126,7 @@ const Users = () => {
             </div>
 
             {/* Filas de usuarios */}
-            {users.map((user, index) => (
+            {users.map((user: User, index: number) => (
               <div
                 key={user.id}
                 className={`p-4 xl:p-0 hover:bg-gray-50 transition-colors duration-150 ${
@@ -169,7 +169,7 @@ const Users = () => {
                           : "bg-blue-100 text-blue-800"
                       }`}
                     >
-                      {user.role === "admin" ? "Administrador" : "Usuario"}
+                      {user.role === "admin" ? "Administrador" : "Evaluador"}
                     </span>
                   </div>
                   <div className="xl:col-span-2 text-sm text-gray-500">
@@ -260,7 +260,7 @@ const Users = () => {
                           : "bg-blue-100 text-blue-800 border border-blue-200"
                       }`}
                     >
-                      {user.role === "admin" ? "Administrador" : "Usuario"}
+                      {user.role === "admin" ? "Administrador" : "Evaluador"}
                     </span>
                     <div className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-md">
                       {user.createdAt
@@ -382,12 +382,12 @@ const Users = () => {
                         <span className="font-semibold">
                           {userToChangeRole.role === "admin"
                             ? "Administrador"
-                            : "Usuario"}
+                            : "Evaluador"}
                         </span>{" "}
                         a{" "}
                         <span className="font-semibold">
                           {userToChangeRole.role === "admin"
-                            ? "Usuario"
+                            ? "Evaluador"
                             : "Administrador"}
                         </span>
                         ?

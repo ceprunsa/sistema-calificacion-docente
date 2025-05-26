@@ -14,6 +14,7 @@ import {
   Clock,
   ClipboardList,
 } from "lucide-react";
+import { useAuth } from "../hooks/useAuth";
 
 const TeacherDetails = () => {
   const { id } = useParams<{ id: string }>();
@@ -21,6 +22,7 @@ const TeacherDetails = () => {
   const { teacherByIdQuery } = useTeachers();
   const { data: teacher, isLoading, isError } = teacherByIdQuery(id);
   const [totalHours, setTotalHours] = useState<number>(0);
+  const { isAdmin } = useAuth();
 
   useEffect(() => {
     if (teacher?.horasPorTurno) {
@@ -95,13 +97,15 @@ const TeacherDetails = () => {
             <ClipboardList size={18} className="mr-2" />
             <span>Evaluar</span>
           </Link>
-          <Link
-            to={`/teachers/${id}`}
-            className="btn btn-secondary inline-flex items-center"
-          >
-            <Edit size={18} className="mr-2" />
-            <span>Editar</span>
-          </Link>
+          {isAdmin && (
+            <Link
+              to={`/teachers/${id}`}
+              className="btn btn-secondary inline-flex items-center"
+            >
+              <Edit size={18} className="mr-2" />
+              <span>Editar</span>
+            </Link>
+          )}
         </div>
       </div>
 
