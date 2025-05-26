@@ -127,7 +127,8 @@ const getDashboardStats = async (): Promise<DashboardStats> => {
     });
 
     return (
-      levelValues.reduce((sum, value) => sum + value, 0) / levelValues.length
+      levelValues.reduce<number>((sum, value) => sum + value, 0) /
+      levelValues.length
     );
   };
 
