@@ -13,7 +13,13 @@ import {
   where,
   orderBy,
 } from "firebase/firestore";
-import { db } from "../firebase/config";
+import {
+  ref,
+  uploadBytes,
+  getDownloadURL,
+  deleteObject,
+} from "firebase/storage";
+import { db, storage } from "../firebase/config";
 import type {
   TeacherEvaluation,
   EvaluationFormData,
@@ -32,6 +38,29 @@ const getEvaluations = async (): Promise<TeacherEvaluation[]> => {
         ...doc.data(),
       } as TeacherEvaluation)
   );
+};
+
+// Función para subir imagen a Firebase Storage
+const uploadEvidenceImage = async (
+  file: File,
+  evaluationId: string
+): Promise<string> => {
+  const imageRef = ref(
+    storage,
+    `evaluations/${evaluationId}/evidence-${Date.now()}`
+  );
+  const snapshot = await uploadBytes(imageRef, file);
+  return await getDownloadURL(snapshot.ref);
+};
+
+// Función para eliminar imagen de Firebase Storage
+const deleteEvidenceImage = async (imageUrl: string): Promise<void> => {
+  try {
+    const imageRef = ref(storage, imageUrl);
+    await deleteObject(imageRef);
+  } catch (error) {
+    console.warn("No se pudo eliminar la imagen anterior:", error);
+  }
 };
 
 // Modificar la función getEvaluationsByTeacherId para manejar mejor los casos de error
@@ -79,7 +108,7 @@ const getEvaluationById = async (
   return null;
 };
 
-// Mejorar la función saveEvaluation para manejar mejor los errores
+// Mejorar la función saveEvaluation para manejar imágenes
 const saveEvaluation = async (
   evaluationData: EvaluationFormData,
   _queryClient: any,
@@ -92,13 +121,28 @@ const saveEvaluation = async (
       // Actualizar evaluación existente
       const evaluationRef = doc(db, "evaluations", evaluationData.id);
 
-      // Extraemos el id para no incluirlo en los datos a actualizar
-      const { id, ...evaluationDataWithoutId } = evaluationData;
+      // Extraemos el id y la imagen para no incluirlos en los datos a actualizar
+      const { id, evidenceImage, ...evaluationDataWithoutId } = evaluationData;
 
       const updatedEvaluation = {
         ...evaluationDataWithoutId,
         updatedAt: now,
       };
+
+      // Manejar la imagen de evidencia si se proporciona una nueva
+      if (evidenceImage) {
+        // Eliminar imagen anterior si existe
+        if (evaluationDataWithoutId.evidenceImageUrl) {
+          await deleteEvidenceImage(evaluationDataWithoutId.evidenceImageUrl);
+        }
+
+        // Subir nueva imagen
+        const imageUrl = await uploadEvidenceImage(
+          evidenceImage,
+          evaluationData.id
+        );
+        updatedEvaluation.evidenceImageUrl = imageUrl;
+      }
 
       await updateDoc(evaluationRef, updatedEvaluation);
 
@@ -115,8 +159,8 @@ const saveEvaluation = async (
         evaluationData.evaluatorName = user.displayName || user.email;
       }
 
-      // Extraemos el id si existe (aunque debería ser undefined para nuevas evaluaciones)
-      const { id, ...evaluationDataWithoutId } = evaluationData;
+      // Extraemos el id y la imagen si existe
+      const { id, evidenceImage, ...evaluationDataWithoutId } = evaluationData;
 
       const newEvaluation = {
         ...evaluationDataWithoutId,
@@ -124,7 +168,17 @@ const saveEvaluation = async (
         updatedAt: now,
       };
 
+      // Crear el documento primero para obtener el ID
       const docRef = await addDoc(collection(db, "evaluations"), newEvaluation);
+
+      // Manejar la imagen de evidencia si se proporciona
+      if (evidenceImage) {
+        const imageUrl = await uploadEvidenceImage(evidenceImage, docRef.id);
+
+        // Actualizar el documento con la URL de la imagen
+        await updateDoc(docRef, { evidenceImageUrl: imageUrl });
+        newEvaluation.evidenceImageUrl = imageUrl;
+      }
 
       toast.success("Evaluación registrada exitosamente");
       return { ...newEvaluation, id: docRef.id } as TeacherEvaluation;
@@ -138,6 +192,13 @@ const saveEvaluation = async (
 
 const deleteEvaluation = async (id: string): Promise<string> => {
   try {
+    // Obtener la evaluación para eliminar la imagen si existe
+    const evaluation = await getEvaluationById(id);
+
+    if (evaluation?.evidenceImageUrl) {
+      await deleteEvidenceImage(evaluation.evidenceImageUrl);
+    }
+
     await deleteDoc(doc(db, "evaluations", id));
     toast.success("Evaluación eliminada exitosamente");
     return id;

@@ -4,7 +4,15 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import { useTeachers } from "../hooks/useTeachers";
 import { useEvaluations } from "../hooks/useEvaluations";
 import { capitalizeText } from "../utils/formatters";
-import { ArrowLeft, Edit, Calendar, User, FileText } from "lucide-react";
+import {
+  ArrowLeft,
+  Edit,
+  Calendar,
+  User,
+  FileText,
+  Clock,
+  ImageIcon,
+} from "lucide-react";
 import {
   performanceTitles,
   performanceDescriptions,
@@ -162,10 +170,16 @@ const EvaluationDetails = () => {
               <Calendar className="h-5 w-5 text-gray-400 mt-0.5 mr-2" />
               <div>
                 <h4 className="text-sm font-medium text-gray-500">
-                  Fecha de Monitoreo
+                  Fecha y Hora de Monitoreo
                 </h4>
                 <p className="mt-1 text-sm text-gray-900">
-                  {new Date(evaluation.date).toLocaleDateString()}
+                  {new Date(evaluation.date + "T00:00:00").toLocaleDateString()}
+                  {evaluation.time && (
+                    <span className="ml-2 text-gray-600">
+                      <Clock className="inline h-4 w-4 mr-1" />
+                      {evaluation.time}
+                    </span>
+                  )}
                 </p>
               </div>
             </div>
@@ -174,14 +188,24 @@ const EvaluationDetails = () => {
               <Calendar className="h-5 w-5 text-gray-400 mt-0.5 mr-2" />
               <div>
                 <h4 className="text-sm font-medium text-gray-500">
-                  Fecha de Diálogo Reflexivo
+                  Fecha y Hora de Diálogo Reflexivo
                 </h4>
                 <p className="mt-1 text-sm text-gray-900">
-                  {evaluation.reflectiveDialogueDate
-                    ? new Date(
-                        evaluation.reflectiveDialogueDate
-                      ).toLocaleDateString()
-                    : "No registrada"}
+                  {evaluation.reflectiveDialogueDate ? (
+                    <>
+                      {new Date(
+                        evaluation.reflectiveDialogueDate + "T00:00:00"
+                      ).toLocaleDateString()}
+                      {evaluation.reflectiveDialogueTime && (
+                        <span className="ml-2 text-gray-600">
+                          <Clock className="inline h-4 w-4 mr-1" />
+                          {evaluation.reflectiveDialogueTime}
+                        </span>
+                      )}
+                    </>
+                  ) : (
+                    "No registrada"
+                  )}
                 </p>
               </div>
             </div>
@@ -212,6 +236,33 @@ const EvaluationDetails = () => {
               </div>
             </div>
           </div>
+
+          {/* Imagen de evidencia */}
+          {evaluation.evidenceImageUrl && (
+            <div className="mt-6">
+              <div className="flex items-start">
+                <ImageIcon className="h-5 w-5 text-gray-400 mt-0.5 mr-2" />
+                <div>
+                  <h4 className="text-sm font-medium text-gray-500">
+                    Imagen de Evidencia
+                  </h4>
+                  <div className="mt-2">
+                    <img
+                      src={evaluation.evidenceImageUrl || "/placeholder.svg"}
+                      alt="Evidencia de evaluación"
+                      className="max-w-md h-auto rounded-lg border border-gray-300 shadow-sm cursor-pointer hover:shadow-md transition-shadow"
+                      onClick={() =>
+                        window.open(evaluation.evidenceImageUrl!, "_blank")
+                      }
+                    />
+                    <p className="mt-1 text-xs text-gray-500">
+                      Haga clic en la imagen para verla en tamaño completo
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

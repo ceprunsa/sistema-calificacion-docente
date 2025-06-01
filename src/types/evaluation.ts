@@ -6,7 +6,10 @@ export interface TeacherEvaluation {
   evaluatorId: string;
   evaluatorName: string;
   date: string;
+  time: string; // Nueva: hora de la evaluación
   reflectiveDialogueDate: string | null;
+  reflectiveDialogueTime: string | null; // Nueva: hora del diálogo reflexivo
+  evidenceImageUrl: string | null; // Nueva: URL de la imagen de evidencia
 
   // Los 6 desempeños evaluados
   performance1: PerformanceLevel; // Involucra activamente a los estudiantes
@@ -29,6 +32,7 @@ export interface TeacherEvaluation {
 export interface EvaluationFormData
   extends Omit<TeacherEvaluation, "id" | "createdAt" | "updatedAt"> {
   id?: string;
+  evidenceImage?: File | null; // Para el archivo de imagen en el formulario
 }
 
 // Descripciones de los niveles para cada desempeño

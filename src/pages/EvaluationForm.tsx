@@ -15,7 +15,7 @@ import {
   levelDescriptions,
 } from "../types/evaluation";
 import { capitalizeText } from "../utils/formatters";
-import { Save, X, HelpCircle, Calendar } from "lucide-react";
+import { Save, X, HelpCircle, Calendar, Clock } from "lucide-react";
 
 const EvaluationForm = () => {
   const { teacherId, evaluationId } = useParams<{
@@ -36,8 +36,14 @@ const EvaluationForm = () => {
     teacherId: teacherId || "",
     evaluatorId: user?.id || "",
     evaluatorName: user?.displayName || user?.email || "",
-    date: new Date().toISOString().split("T")[0],
+    date: new Date(Date.now() - new Date().getTimezoneOffset() * 60_000)
+      .toISOString()
+      .split("T")[0],
+    time: new Date().toTimeString().slice(0, 5), // HH:MM format
     reflectiveDialogueDate: null,
+    reflectiveDialogueTime: null,
+    evidenceImageUrl: null,
+    evidenceImage: null,
     performance1: "I",
     performance2: "I",
     performance3: "I",
@@ -51,6 +57,8 @@ const EvaluationForm = () => {
   });
 
   const [activeTooltip, setActiveTooltip] = useState<string | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [isDragOver, setIsDragOver] = useState(false);
 
   useEffect(() => {
     if (existingEvaluation) {
@@ -63,8 +71,16 @@ const EvaluationForm = () => {
           user?.displayName ||
           user?.email ||
           "",
-        date: existingEvaluation.date || new Date().toISOString().split("T")[0],
+        date:
+          existingEvaluation.date ||
+          new Date(Date.now() - new Date().getTimezoneOffset() * 60_000)
+            .toISOString()
+            .split("T")[0],
+        time: existingEvaluation.time || "08:00",
         reflectiveDialogueDate: existingEvaluation.reflectiveDialogueDate,
+        reflectiveDialogueTime: existingEvaluation.reflectiveDialogueTime,
+        evidenceImageUrl: existingEvaluation.evidenceImageUrl,
+        evidenceImage: null,
         performance1: existingEvaluation.performance1 || "I",
         performance2: existingEvaluation.performance2 || "I",
         performance3: existingEvaluation.performance3 || "I",
@@ -78,6 +94,11 @@ const EvaluationForm = () => {
       };
 
       setFormData(safeEvaluation);
+
+      // Establecer preview de imagen existente
+      if (existingEvaluation.evidenceImageUrl) {
+        setImagePreview(existingEvaluation.evidenceImageUrl);
+      }
     } else if (teacherId) {
       setFormData((prev) => ({
         ...prev,
@@ -96,6 +117,86 @@ const EvaluationForm = () => {
       ...prev,
       [name]: value,
     }));
+  };
+
+  const validateAndProcessFile = (file: File) => {
+    // Validar tamaño del archivo (400KB = 400 * 1024 bytes)
+    const maxSize = 400 * 1024;
+    if (file.size > maxSize) {
+      toast.error("La imagen no debe exceder los 400KB");
+      return false;
+    }
+
+    // Validar tipo de archivo
+    const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+    if (!allowedTypes.includes(file.type)) {
+      toast.error("Solo se permiten archivos de imagen (JPG, PNG, WebP)");
+      return false;
+    }
+
+    setFormData((prev) => ({
+      ...prev,
+      evidenceImage: file,
+    }));
+
+    // Crear preview de la imagen
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setImagePreview(e.target?.result as string);
+    };
+    reader.readAsDataURL(file);
+
+    return true;
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (!validateAndProcessFile(file)) {
+        e.target.value = ""; // Limpiar el input si la validación falla
+      }
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+
+    const files = e.dataTransfer.files;
+    if (files && files.length > 0) {
+      const file = files[0];
+      validateAndProcessFile(file);
+    }
+  };
+
+  const removeImage = () => {
+    setFormData((prev) => ({
+      ...prev,
+      evidenceImage: null,
+      evidenceImageUrl: null,
+    }));
+    setImagePreview(null);
+
+    // Limpiar el input file
+    const fileInput = document.getElementById(
+      "evidenceImage"
+    ) as HTMLInputElement;
+    if (fileInput) {
+      fileInput.value = "";
+    }
   };
 
   const handlePerformanceChange = (
@@ -126,6 +227,17 @@ const EvaluationForm = () => {
 
     if (!formData.date) {
       toast.error("Debe ingresar la fecha de evaluación");
+      return;
+    }
+
+    if (!formData.time) {
+      toast.error("Debe ingresar la hora de evaluación");
+      return;
+    }
+
+    // Validar que si hay fecha de diálogo reflexivo, también haya hora
+    if (formData.reflectiveDialogueDate && !formData.reflectiveDialogueTime) {
+      toast.error("Debe ingresar la hora del diálogo reflexivo");
       return;
     }
 
@@ -244,7 +356,7 @@ const EvaluationForm = () => {
             <div className="shadow overflow-hidden rounded-lg">
               <div className="px-4 py-5 bg-white sm:p-6">
                 <div className="grid grid-cols-6 gap-6">
-                  {/* Fechas */}
+                  {/* Fechas y horas */}
                   <div className="col-span-6 sm:col-span-3">
                     <label
                       htmlFor="date"
@@ -261,6 +373,29 @@ const EvaluationForm = () => {
                         name="date"
                         id="date"
                         value={formData.date}
+                        onChange={handleChange}
+                        required
+                        className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="col-span-6 sm:col-span-3">
+                    <label
+                      htmlFor="time"
+                      className="block text-sm font-medium text-gray-700"
+                    >
+                      Hora de Monitoreo
+                    </label>
+                    <div className="mt-1 relative rounded-md shadow-sm">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <Clock className="h-5 w-5 text-gray-400" />
+                      </div>
+                      <input
+                        type="time"
+                        name="time"
+                        id="time"
+                        value={formData.time}
                         onChange={handleChange}
                         required
                         className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md"
@@ -288,6 +423,214 @@ const EvaluationForm = () => {
                         className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md"
                       />
                     </div>
+                  </div>
+
+                  <div className="col-span-6 sm:col-span-3">
+                    <label
+                      htmlFor="reflectiveDialogueTime"
+                      className="block text-sm font-medium text-gray-700"
+                    >
+                      Hora de Diálogo Reflexivo
+                    </label>
+                    <div className="mt-1 relative rounded-md shadow-sm">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <Clock className="h-5 w-5 text-gray-400" />
+                      </div>
+                      <input
+                        type="time"
+                        name="reflectiveDialogueTime"
+                        id="reflectiveDialogueTime"
+                        value={formData.reflectiveDialogueTime || ""}
+                        onChange={handleChange}
+                        disabled={!formData.reflectiveDialogueDate}
+                        className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md disabled:bg-gray-100"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Imagen de evidencia */}
+                  <div className="col-span-6">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Imagen de Evidencia (Opcional - Máximo 400KB)
+                    </label>
+
+                    {!imagePreview ? (
+                      <div
+                        className={`mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-dashed rounded-md transition-colors ${
+                          isDragOver
+                            ? "border-blue-500 bg-blue-50"
+                            : "border-gray-300 hover:border-blue-400"
+                        }`}
+                        onDragOver={handleDragOver}
+                        onDragLeave={handleDragLeave}
+                        onDrop={handleDrop}
+                      >
+                        <div className="space-y-1 text-center">
+                          <svg
+                            className={`mx-auto h-12 w-12 transition-colors ${
+                              isDragOver ? "text-blue-500" : "text-gray-400"
+                            }`}
+                            stroke="currentColor"
+                            fill="none"
+                            viewBox="0 0 48 48"
+                            aria-hidden="true"
+                          >
+                            <path
+                              d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
+                          <div className="flex text-sm text-gray-600">
+                            <label
+                              htmlFor="evidenceImage"
+                              className={`relative cursor-pointer bg-white rounded-md font-medium focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500 ${
+                                isDragOver
+                                  ? "text-blue-700"
+                                  : "text-blue-600 hover:text-blue-500"
+                              }`}
+                            >
+                              <span>Seleccionar imagen</span>
+                              <input
+                                id="evidenceImage"
+                                name="evidenceImage"
+                                type="file"
+                                accept="image/*"
+                                onChange={handleImageChange}
+                                className="sr-only"
+                              />
+                            </label>
+                            <p className="pl-1">o arrastrar y soltar</p>
+                          </div>
+                          <p
+                            className={`text-xs ${
+                              isDragOver ? "text-blue-600" : "text-gray-500"
+                            }`}
+                          >
+                            PNG, JPG, WebP hasta 400KB
+                          </p>
+                          {isDragOver && (
+                            <p className="text-xs text-blue-600 font-medium">
+                              Suelta la imagen aquí
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="mt-2">
+                        <div className="relative bg-gray-50 p-4 rounded-lg border border-gray-200">
+                          <div className="flex items-start space-x-4">
+                            <div className="relative group">
+                              <img
+                                src={imagePreview || "/placeholder.svg"}
+                                alt="Evidencia de evaluación"
+                                className="h-32 w-32 object-cover rounded-lg border border-gray-300 shadow-sm group-hover:opacity-75 transition-opacity"
+                              />
+                              <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    if (imagePreview) {
+                                      // Crear un modal simple para mostrar la imagen
+                                      const modal =
+                                        document.createElement("div");
+                                      modal.className =
+                                        "fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50";
+                                      modal.onclick = () =>
+                                        document.body.removeChild(modal);
+
+                                      const img = document.createElement("img");
+                                      img.src = imagePreview;
+                                      img.className =
+                                        "max-w-full max-h-full object-contain";
+                                      img.onclick = (e) => e.stopPropagation();
+
+                                      const closeBtn =
+                                        document.createElement("button");
+                                      closeBtn.innerHTML = "×";
+                                      closeBtn.className =
+                                        "absolute top-4 right-4 text-white text-3xl font-bold hover:text-gray-300";
+                                      closeBtn.onclick = () =>
+                                        document.body.removeChild(modal);
+
+                                      modal.appendChild(img);
+                                      modal.appendChild(closeBtn);
+                                      document.body.appendChild(modal);
+                                    }
+                                  }}
+                                  className="p-1 bg-white rounded-full shadow-md text-gray-700 hover:text-blue-500 focus:outline-none"
+                                  title="Ver imagen completa"
+                                >
+                                  <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    className="h-5 w-5"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth={2}
+                                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                                    />
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth={2}
+                                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                                    />
+                                  </svg>
+                                </button>
+                              </div>
+                            </div>
+
+                            <div className="flex-1">
+                              <div className="flex items-center justify-between">
+                                <p className="text-sm font-medium text-gray-900">
+                                  Imagen seleccionada
+                                </p>
+                                <div className="flex space-x-2">
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      document
+                                        .getElementById("evidenceImage")
+                                        ?.click();
+                                    }}
+                                    className="inline-flex items-center px-2.5 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                                  >
+                                    Cambiar
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={removeImage}
+                                    className="inline-flex items-center px-2.5 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded text-red-700 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                                  >
+                                    Eliminar
+                                  </button>
+                                </div>
+                              </div>
+                              <input
+                                id="evidenceImage"
+                                name="evidenceImage"
+                                type="file"
+                                accept="image/*"
+                                onChange={handleImageChange}
+                                className="hidden"
+                              />
+                              <p className="mt-1 text-xs text-gray-500">
+                                Haga clic en el ícono de ojo para ver la imagen
+                                en tamaño completo
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   {/* Desempeños */}
@@ -370,7 +713,9 @@ const EvaluationForm = () => {
                                 <span className="font-medium">
                                   Nivel seleccionado:
                                 </span>{" "}
-                                {formData[performance as keyof typeof formData]}{" "}
+                                {String(
+                                  formData[performance as keyof typeof formData]
+                                )}{" "}
                                 -{" "}
                                 {
                                   performanceDescriptions[

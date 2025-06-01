@@ -243,13 +243,15 @@ const TeacherEvaluations = () => {
                     <div className="lg:col-span-2">
                       <div className="flex flex-col">
                         <span className="text-sm font-medium text-gray-900">
-                          {new Date(evaluation.date).toLocaleDateString()}
+                          {new Date(
+                            evaluation.date + "T00:00:00"
+                          ).toLocaleDateString()}
                         </span>
                         {evaluation.reflectiveDialogueDate && (
                           <span className="text-xs text-gray-500">
                             Diálogo:{" "}
                             {new Date(
-                              evaluation.reflectiveDialogueDate
+                              evaluation.reflectiveDialogueDate + "T00:00:00"
                             ).toLocaleDateString()}
                           </span>
                         )}
@@ -345,14 +347,16 @@ const TeacherEvaluations = () => {
                         <div className="flex items-center">
                           <Calendar size={16} className="text-gray-400 mr-2" />
                           <span className="text-sm font-medium text-gray-900">
-                            {new Date(evaluation.date).toLocaleDateString()}
+                            {new Date(
+                              evaluation.date + "T00:00:00"
+                            ).toLocaleDateString()}
                           </span>
                         </div>
                         {evaluation.reflectiveDialogueDate && (
                           <div className="text-xs text-gray-500 mt-1 ml-6">
                             Diálogo:{" "}
                             {new Date(
-                              evaluation.reflectiveDialogueDate
+                              evaluation.reflectiveDialogueDate + "T00:00:00"
                             ).toLocaleDateString()}
                           </div>
                         )}
@@ -506,7 +510,7 @@ const TeacherEvaluations = () => {
                         <span className="font-semibold">
                           {evaluationToDelete.date
                             ? new Date(
-                                evaluationToDelete.date
+                                evaluationToDelete.date + "T00:00:00"
                               ).toLocaleDateString()
                             : ""}
                         </span>
