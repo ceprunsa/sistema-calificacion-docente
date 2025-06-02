@@ -10,6 +10,7 @@ export interface TeacherEvaluation {
   reflectiveDialogueDate: string | null;
   reflectiveDialogueTime: string | null; // Nueva: hora del diálogo reflexivo
   evidenceImageUrl: string | null; // Nueva: URL de la imagen de evidencia
+  evidenceImageBase64?: string | null; // Nueva: imagen en base64 para exportación
 
   // Los 6 desempeños evaluados
   performance1: PerformanceLevel; // Involucra activamente a los estudiantes

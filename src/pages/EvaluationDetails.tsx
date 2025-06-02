@@ -4,6 +4,7 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import { useTeachers } from "../hooks/useTeachers";
 import { useEvaluations } from "../hooks/useEvaluations";
 import { capitalizeText } from "../utils/formatters";
+import { generateEvaluationDocument } from "../utils/documentGenerator";
 import {
   ArrowLeft,
   Edit,
@@ -12,11 +13,14 @@ import {
   FileText,
   Clock,
   ImageIcon,
+  Download,
 } from "lucide-react";
 import {
   performanceTitles,
   performanceDescriptions,
 } from "../types/evaluation";
+import toast from "react-hot-toast";
+import { useState } from "react";
 
 const EvaluationDetails = () => {
   const { teacherId, evaluationId } = useParams<{
@@ -26,6 +30,7 @@ const EvaluationDetails = () => {
   const navigate = useNavigate();
   const { teacherByIdQuery } = useTeachers();
   const { useEvaluationById } = useEvaluations();
+  const [isGeneratingDocument, setIsGeneratingDocument] = useState(false);
 
   const { data: teacher, isLoading: isLoadingTeacher } =
     teacherByIdQuery(teacherId);
@@ -34,6 +39,24 @@ const EvaluationDetails = () => {
     isLoading: isLoadingEvaluation,
     isError,
   } = useEvaluationById(evaluationId);
+
+  const handleGenerateDocument = async () => {
+    if (!teacher || !evaluation) {
+      toast.error("No se pueden cargar los datos necesarios");
+      return;
+    }
+
+    setIsGeneratingDocument(true);
+    try {
+      await generateEvaluationDocument(teacher, evaluation);
+      toast.success("Documento generado exitosamente");
+    } catch (error) {
+      console.error("Error al generar documento:", error);
+      toast.error("Error al generar el documento");
+    } finally {
+      setIsGeneratingDocument(false);
+    }
+  };
 
   if (isLoadingTeacher || isLoadingEvaluation) {
     return (
@@ -148,13 +171,25 @@ const EvaluationDetails = () => {
             </p>
           </div>
         </div>
-        <Link
-          to={`/teachers/${teacherId}/evaluations/${evaluationId}/edit`}
-          className="btn btn-primary inline-flex items-center"
-        >
-          <Edit size={18} className="mr-2" />
-          <span>Editar Evaluación</span>
-        </Link>
+        <div className="flex space-x-3">
+          <button
+            onClick={handleGenerateDocument}
+            disabled={isGeneratingDocument}
+            className="btn btn-secondary inline-flex items-center"
+          >
+            <Download size={18} className="mr-2" />
+            <span>
+              {isGeneratingDocument ? "Generando..." : "Exportar Word"}
+            </span>
+          </button>
+          <Link
+            to={`/teachers/${teacherId}/evaluations/${evaluationId}/edit`}
+            className="btn btn-primary inline-flex items-center"
+          >
+            <Edit size={18} className="mr-2" />
+            <span>Editar Evaluación</span>
+          </Link>
+        </div>
       </div>
 
       {/* Información general */}

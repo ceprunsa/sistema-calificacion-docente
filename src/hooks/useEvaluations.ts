@@ -40,6 +40,16 @@ const getEvaluations = async (): Promise<TeacherEvaluation[]> => {
   );
 };
 
+// Función para convertir archivo a base64
+const fileToBase64 = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = (error) => reject(error);
+  });
+};
+
 // Función para subir imagen a Firebase Storage
 const uploadEvidenceImage = async (
   file: File,
@@ -108,7 +118,7 @@ const getEvaluationById = async (
   return null;
 };
 
-// Mejorar la función saveEvaluation para manejar imágenes
+// Mejorar la función saveEvaluation para manejar imágenes y base64
 const saveEvaluation = async (
   evaluationData: EvaluationFormData,
   _queryClient: any,
@@ -136,12 +146,15 @@ const saveEvaluation = async (
           await deleteEvidenceImage(evaluationDataWithoutId.evidenceImageUrl);
         }
 
-        // Subir nueva imagen
+        // Subir nueva imagen y convertir a base64
         const imageUrl = await uploadEvidenceImage(
           evidenceImage,
           evaluationData.id
         );
+        const imageBase64 = await fileToBase64(evidenceImage);
+
         updatedEvaluation.evidenceImageUrl = imageUrl;
+        updatedEvaluation.evidenceImageBase64 = imageBase64;
       }
 
       await updateDoc(evaluationRef, updatedEvaluation);
@@ -174,10 +187,15 @@ const saveEvaluation = async (
       // Manejar la imagen de evidencia si se proporciona
       if (evidenceImage) {
         const imageUrl = await uploadEvidenceImage(evidenceImage, docRef.id);
+        const imageBase64 = await fileToBase64(evidenceImage);
 
-        // Actualizar el documento con la URL de la imagen
-        await updateDoc(docRef, { evidenceImageUrl: imageUrl });
+        // Actualizar el documento con la URL y base64 de la imagen
+        await updateDoc(docRef, {
+          evidenceImageUrl: imageUrl,
+          evidenceImageBase64: imageBase64,
+        });
         newEvaluation.evidenceImageUrl = imageUrl;
+        newEvaluation.evidenceImageBase64 = imageBase64;
       }
 
       toast.success("Evaluación registrada exitosamente");
