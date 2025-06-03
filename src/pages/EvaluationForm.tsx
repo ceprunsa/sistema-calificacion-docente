@@ -451,7 +451,7 @@ const EvaluationForm = () => {
                   {/* Imagen de evidencia */}
                   <div className="col-span-6">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Imagen de Evidencia (Opcional - Máximo 400KB)
+                      Imagen de Evidencia (Opcional - Máximo 500KB)
                     </label>
 
                     {!imagePreview ? (
@@ -508,7 +508,7 @@ const EvaluationForm = () => {
                               isDragOver ? "text-blue-600" : "text-gray-500"
                             }`}
                           >
-                            PNG, JPG, WebP hasta 400KB
+                            PNG, JPG, WebP hasta 500KB
                           </p>
                           {isDragOver && (
                             <p className="text-xs text-blue-600 font-medium">
