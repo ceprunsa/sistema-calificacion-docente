@@ -120,8 +120,8 @@ const EvaluationForm = () => {
   };
 
   const validateAndProcessFile = (file: File) => {
-    // Validar tamaño del archivo (400KB = 400 * 1024 bytes)
-    const maxSize = 400 * 1024;
+    // Validar tamaño del archivo (2mb es igual a 2 * 1024 * 1024 bytes)
+    const maxSize = 2 * 1024 * 1024; // 2MB en bytes
     if (file.size > maxSize) {
       toast.error("La imagen no debe exceder los 400KB");
       return false;
