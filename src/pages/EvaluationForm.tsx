@@ -120,10 +120,10 @@ const EvaluationForm = () => {
   };
 
   const validateAndProcessFile = (file: File) => {
-    // Validar tamaño del archivo (2mb es igual a 2 * 1024 * 1024 bytes)
-    const maxSize = 2 * 1024 * 1024; // 2MB en bytes
+    // Validar tamaño del archivo (500KB máximo)
+    const maxSize = 500 * 1024; // 500KB
     if (file.size > maxSize) {
-      toast.error("La imagen no debe exceder los 2mb de tamaño");
+      toast.error("La imagen no debe exceder los 500KB de tamaño");
       return false;
     }
 
