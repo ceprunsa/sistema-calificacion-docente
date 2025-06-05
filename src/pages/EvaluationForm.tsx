@@ -120,10 +120,10 @@ const EvaluationForm = () => {
   };
 
   const validateAndProcessFile = (file: File) => {
-    // Validar tamaño del archivo (500KB máximo)
-    const maxSize = 500 * 1024; // 500KB
+    // Validar tamaño del archivo (400KB = 400 * 1024 bytes)
+    const maxSize = 400 * 1024;
     if (file.size > maxSize) {
-      toast.error("La imagen no debe exceder los 500KB de tamaño");
+      toast.error("La imagen no debe exceder los 400KB");
       return false;
     }
 
@@ -451,7 +451,7 @@ const EvaluationForm = () => {
                   {/* Imagen de evidencia */}
                   <div className="col-span-6">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Imagen de Evidencia (Opcional - Máximo 500KB)
+                      Imagen de Evidencia (Opcional - Máximo 400KB)
                     </label>
 
                     {!imagePreview ? (
@@ -476,7 +476,7 @@ const EvaluationForm = () => {
                             aria-hidden="true"
                           >
                             <path
-                              d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                              d="M28 8 H12 a4 4 0 0 0 -4 4 v20 m32 -12 v8 v8 a4 4 0 0 1 -4 4 H12 a4 4 0 0 1 -4 -4 v-4 m32 -4 l-3.172 -3.172 a4 4 0 0 0 -5.656 0 L28 28 M8 32 l9.172 -9.172 a4 4 0 0 1 5.656 0 L28 28 l4 4 M32 8 h8 M36 4 v8 M24 16 h0.02"
                               strokeWidth="2"
                               strokeLinecap="round"
                               strokeLinejoin="round"
@@ -508,7 +508,7 @@ const EvaluationForm = () => {
                               isDragOver ? "text-blue-600" : "text-gray-500"
                             }`}
                           >
-                            PNG, JPG, WebP hasta 500KB
+                            PNG, JPG, WebP hasta 400KB
                           </p>
                           {isDragOver && (
                             <p className="text-xs text-blue-600 font-medium">
@@ -539,8 +539,15 @@ const EvaluationForm = () => {
                                         document.createElement("div");
                                       modal.className =
                                         "fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50";
-                                      modal.onclick = () =>
-                                        document.body.removeChild(modal);
+
+                                      // Función para cerrar el modal de forma segura
+                                      const closeModal = () => {
+                                        if (modal && modal.parentNode) {
+                                          modal.parentNode.removeChild(modal);
+                                        }
+                                      };
+
+                                      modal.onclick = closeModal;
 
                                       const img = document.createElement("img");
                                       img.src = imagePreview;
@@ -553,8 +560,7 @@ const EvaluationForm = () => {
                                       closeBtn.innerHTML = "×";
                                       closeBtn.className =
                                         "absolute top-4 right-4 text-white text-3xl font-bold hover:text-gray-300";
-                                      closeBtn.onclick = () =>
-                                        document.body.removeChild(modal);
+                                      closeBtn.onclick = closeModal;
 
                                       modal.appendChild(img);
                                       modal.appendChild(closeBtn);
