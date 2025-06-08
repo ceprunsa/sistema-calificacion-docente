@@ -71,7 +71,7 @@ export const performanceDescriptions = {
   performance6: {
     I: "El docente no añade tecnologías o muros de interacción con sus estudiantes, no permitiendo de esta manera la participación de sus estudiantes.",
     II: "El docente utiliza al menos alguna tecnología como muros Padlet, en una ocación, para interactuar con sus estudiantes a través de la virtualidad.",
-    III: "El docente trabaja con pizarras interactivas para permitir la mayor participación de estudiantes, usando los muros de interacción Padlet, al menos más de una ocación.",
+    III: "El docente trabaja con pizarras interactivas para permitir la mayor participación de estudiantes, usando los muros de interacción Padlet, al menos más de una ocasión.",
     IV: "El docente siempre utiliza pizarras interactivas y hace que sus estudiantes constantemente envíen respuestas a través de muros de participación cuando les pregunta.",
   },
 };
