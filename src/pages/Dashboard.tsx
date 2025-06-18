@@ -230,49 +230,38 @@ const Dashboard = () => {
           <div className="p-6">
             {stats.recentEvaluations.length > 0 ? (
               <div className="space-y-3">
-                {stats.recentEvaluations.map((evaluation) => {
-                  const teacher = stats.topPerformingTeachers.find(
-                    (t) => t.teacher.id === evaluation.teacherId
-                  )?.teacher;
-                  return (
-                    <div
-                      key={evaluation.id}
-                      className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-                    >
-                      <div className="flex-1">
-                        <div className="font-medium text-gray-900">
-                          {teacher
-                            ? `${teacher.apellidos}, ${teacher.nombres}`
-                            : "Docente no encontrado"}
-                        </div>
-                        <div className="text-sm text-gray-500">
-                          {new Date(evaluation.date).toLocaleDateString()} -{" "}
-                          {evaluation.evaluatorName}
-                        </div>
+                {stats.recentEvaluations.map((item) => (
+                  <div
+                    key={item.evaluation.id}
+                    className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                  >
+                    <div className="flex-1">
+                      <div className="font-medium text-gray-900">
+                        {item.teacher.apellidos}, {item.teacher.nombres}
                       </div>
-                      <div className="flex space-x-2">
-                        {teacher && (
-                          <>
-                            <Link
-                              to={`/teachers/${teacher.id}/evaluations/${evaluation.id}/view`}
-                              className="p-1 rounded text-green-600 hover:bg-green-50"
-                              title="Ver evaluación"
-                            >
-                              <Eye size={16} />
-                            </Link>
-                            <Link
-                              to={`/teachers/${teacher.id}/evaluations`}
-                              className="p-1 rounded text-blue-600 hover:bg-blue-50"
-                              title="Ver todas las evaluaciones"
-                            >
-                              <FileText size={16} />
-                            </Link>
-                          </>
-                        )}
+                      <div className="text-sm text-gray-500">
+                        {new Date(item.evaluation.date).toLocaleDateString()} -{" "}
+                        {item.evaluation.evaluatorName}
                       </div>
                     </div>
-                  );
-                })}
+                    <div className="flex space-x-2">
+                      <Link
+                        to={`/teachers/${item.teacher.id}/evaluations/${item.evaluation.id}/view`}
+                        className="p-1 rounded text-green-600 hover:bg-green-50"
+                        title="Ver evaluación"
+                      >
+                        <Eye size={16} />
+                      </Link>
+                      <Link
+                        to={`/teachers/${item.teacher.id}/evaluations`}
+                        className="p-1 rounded text-blue-600 hover:bg-blue-50"
+                        title="Ver todas las evaluaciones"
+                      >
+                        <FileText size={16} />
+                      </Link>
+                    </div>
+                  </div>
+                ))}
               </div>
             ) : (
               <div className="text-center text-gray-500 py-8">

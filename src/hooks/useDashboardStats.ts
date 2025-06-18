@@ -17,7 +17,10 @@ export interface DashboardStats {
   evaluatedCourseDistribution: {
     [course: string]: { total: number; evaluated: number };
   };
-  recentEvaluations: TeacherEvaluation[];
+  recentEvaluations: Array<{
+    evaluation: TeacherEvaluation;
+    teacher: Teacher;
+  }>;
   topPerformingTeachers: Array<{
     teacher: Teacher;
     evaluation: TeacherEvaluation;
@@ -55,13 +58,29 @@ const getDashboardStats = async (): Promise<DashboardStats> => {
     limit(5)
   );
   const recentEvaluationsSnapshot = await getDocs(recentEvaluationsQuery);
-  const recentEvaluations = recentEvaluationsSnapshot.docs.map(
+  const recentEvaluationsData = recentEvaluationsSnapshot.docs.map(
     (doc) =>
       ({
         id: doc.id,
         ...doc.data(),
       } as TeacherEvaluation)
   );
+
+  // Crear lista de evaluaciones recientes con información del docente
+  const recentEvaluations = recentEvaluationsData
+    .map((evaluation) => {
+      const teacher = teachers.find((t) => t.id === evaluation.teacherId);
+      if (!teacher) return null;
+
+      return {
+        evaluation,
+        teacher,
+      };
+    })
+    .filter((item) => item !== null) as Array<{
+    evaluation: TeacherEvaluation;
+    teacher: Teacher;
+  }>;
 
   // Calcular estadísticas básicas
   const totalTeachers = teachers.length;
