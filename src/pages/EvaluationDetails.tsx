@@ -106,8 +106,8 @@ const EvaluationDetails = () => {
     }
   };
 
-  // Calcular el promedio de nivel de desempeño
-  const calculateAverageLevel = (): number => {
+  // Calcular la suma total de desempeño
+  const calculateTotalScore = (): number => {
     const levels = [
       evaluation.performance1,
       evaluation.performance2,
@@ -132,19 +132,16 @@ const EvaluationDetails = () => {
       }
     });
 
-    return (
-      levelValues.reduce<number>((sum, value) => sum + value, 0) /
-      levelValues.length
-    );
+    return levelValues.reduce<number>((sum, value) => sum + value, 0);
   };
 
-  const averageLevel = calculateAverageLevel();
-  const averageLevelColor = getLevelColor(
-    averageLevel >= 3.5
+  const totalScore = calculateTotalScore();
+  const totalScoreColor = getLevelColor(
+    totalScore >= 21
       ? "IV"
-      : averageLevel >= 2.5
+      : totalScore >= 15
       ? "III"
-      : averageLevel >= 1.5
+      : totalScore >= 9
       ? "II"
       : "I"
   );
@@ -259,13 +256,13 @@ const EvaluationDetails = () => {
               <FileText className="h-5 w-5 text-gray-400 mt-0.5 mr-2" />
               <div>
                 <h4 className="text-sm font-medium text-gray-500">
-                  Promedio de Desempeño
+                  Puntaje Total de Desempeño
                 </h4>
                 <p className="mt-1">
                   <span
-                    className={`px-2 py-1 text-xs font-semibold rounded-full ${averageLevelColor} border`}
+                    className={`px-2 py-1 text-xs font-semibold rounded-full ${totalScoreColor} border`}
                   >
-                    {averageLevel.toFixed(1)} / 4.0
+                    {totalScore} / 24 puntos
                   </span>
                 </p>
               </div>

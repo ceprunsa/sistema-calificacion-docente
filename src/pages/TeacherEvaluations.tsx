@@ -5,6 +5,7 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import { useTeachers } from "../hooks/useTeachers";
 import { useEvaluations } from "../hooks/useEvaluations";
 import { capitalizeText } from "../utils/formatters";
+import { exportTeacherEvaluationsToExcel } from "../utils/excelExporter";
 import {
   ArrowLeft,
   Plus,
@@ -13,6 +14,7 @@ import {
   Eye,
   Calendar,
   AlertTriangle,
+  Download,
 } from "lucide-react";
 import type { TeacherEvaluation } from "../types/evaluation";
 import { performanceTitles } from "../types/evaluation";
@@ -135,8 +137,24 @@ const TeacherEvaluations = () => {
     setEvaluationToDelete(null);
   };
 
-  // Función para calcular el promedio de nivel de desempeño
-  const calculateAverageLevel = (evaluation: TeacherEvaluation): number => {
+  // Función para manejar la exportación a Excel
+  const handleExportToExcel = () => {
+    if (!teacher || !evaluations || evaluations.length === 0) {
+      toast.error("No hay evaluaciones para exportar");
+      return;
+    }
+
+    try {
+      exportTeacherEvaluationsToExcel(teacher, evaluations);
+      toast.success("Archivo Excel descargado exitosamente");
+    } catch (error) {
+      console.error("Error al exportar a Excel:", error);
+      toast.error("Error al generar el archivo Excel");
+    }
+  };
+
+  // Función para calcular la suma total de desempeño
+  const calculateTotalScore = (evaluation: TeacherEvaluation): number => {
     const levels = [
       evaluation.performance1,
       evaluation.performance2,
@@ -161,20 +179,16 @@ const TeacherEvaluations = () => {
       }
     });
 
-    return (
-      levelValues.reduce<number>((sum, value) => sum + value, 0) /
-      levelValues.length
-    );
+    return levelValues.reduce<number>((sum, value) => sum + value, 0);
   };
 
-  // Función para obtener el color según el nivel promedio
-  const getLevelColor = (averageLevel: number): string => {
-    if (averageLevel >= 3.5)
-      return "bg-green-100 text-green-800 border-green-200"; // Nivel IV
-    if (averageLevel >= 2.5) return "bg-blue-100 text-blue-800 border-blue-200"; // Nivel III
-    if (averageLevel >= 1.5)
-      return "bg-yellow-100 text-yellow-800 border-yellow-200"; // Nivel II
-    return "bg-red-100 text-red-800 border-red-200"; // Nivel I
+  // Función para obtener el color según la suma total
+  const getTotalScoreColor = (totalScore: number): string => {
+    if (totalScore >= 21) return "bg-green-100 text-green-800 border-green-200"; // 21-24 puntos
+    if (totalScore >= 15) return "bg-blue-100 text-blue-800 border-blue-200"; // 15-20 puntos
+    if (totalScore >= 9)
+      return "bg-yellow-100 text-yellow-800 border-yellow-200"; // 9-14 puntos
+    return "bg-red-100 text-red-800 border-red-200"; // 6-8 puntos
   };
 
   return (
@@ -199,13 +213,25 @@ const TeacherEvaluations = () => {
             </p>
           </div>
         </div>
-        <Link
-          to={`/teachers/${id}/evaluations/new`}
-          className="btn btn-primary inline-flex items-center"
-        >
-          <Plus size={18} className="mr-2" />
-          <span>Nueva Evaluación</span>
-        </Link>
+        <div className="flex flex-col sm:flex-row gap-2">
+          {evaluations && evaluations.length > 0 && (
+            <button
+              onClick={handleExportToExcel}
+              className="btn btn-success inline-flex items-center"
+              title="Exportar evaluaciones a Excel"
+            >
+              <Download size={18} className="mr-2" />
+              <span>Exportar Excel</span>
+            </button>
+          )}
+          <Link
+            to={`/teachers/${id}/evaluations/new`}
+            className="btn btn-primary inline-flex items-center"
+          >
+            <Plus size={18} className="mr-2" />
+            <span>Nueva Evaluación</span>
+          </Link>
+        </div>
       </div>
 
       {/* Lista de evaluaciones */}
@@ -230,8 +256,8 @@ const TeacherEvaluations = () => {
 
             {/* Filas de evaluaciones */}
             {evaluations.map((evaluation) => {
-              const averageLevel = calculateAverageLevel(evaluation);
-              const levelColor = getLevelColor(averageLevel);
+              const totalScore = calculateTotalScore(evaluation);
+              const totalScoreColor = getTotalScoreColor(totalScore);
 
               return (
                 <div
@@ -309,9 +335,9 @@ const TeacherEvaluations = () => {
                           )}
                         </div>
                         <span
-                          className={`px-2 py-1 text-xs font-semibold rounded-full ${levelColor} border`}
+                          className={`px-2 py-1 text-xs font-semibold rounded-full ${totalScoreColor} border`}
                         >
-                          Promedio: {averageLevel.toFixed(1)}
+                          Total: {totalScore}/24
                         </span>
                       </div>
                     </div>
@@ -441,9 +467,9 @@ const TeacherEvaluations = () => {
                         )}
                       </div>
                       <span
-                        className={`px-2 py-1 text-xs font-semibold rounded-full ${levelColor} border`}
+                        className={`px-2 py-1 text-xs font-semibold rounded-full ${totalScoreColor} border`}
                       >
-                        Promedio: {averageLevel.toFixed(1)}
+                        Total: {totalScore}/24
                       </span>
                     </div>
                   </div>

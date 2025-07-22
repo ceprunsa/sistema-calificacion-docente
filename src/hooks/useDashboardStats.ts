@@ -24,7 +24,7 @@ export interface DashboardStats {
   topPerformingTeachers: Array<{
     teacher: Teacher;
     evaluation: TeacherEvaluation;
-    averageScore: number;
+    totalScore: number;
   }>;
 }
 
@@ -119,8 +119,8 @@ const getDashboardStats = async (): Promise<DashboardStats> => {
     }
   });
 
-  // Función para calcular el promedio de una evaluación
-  const calculateAverageScore = (evaluation: TeacherEvaluation): number => {
+  // Función para calcular la suma total de una evaluación
+  const calculateTotalScore = (evaluation: TeacherEvaluation): number => {
     const levels = [
       evaluation.performance1,
       evaluation.performance2,
@@ -145,13 +145,10 @@ const getDashboardStats = async (): Promise<DashboardStats> => {
       }
     });
 
-    return (
-      levelValues.reduce<number>((sum, value) => sum + value, 0) /
-      levelValues.length
-    );
+    return levelValues.reduce<number>((sum, value) => sum + value, 0);
   };
 
-  // Docentes con mejor desempeño (últimas evaluaciones con mejor promedio)
+  // Docentes con mejor desempeño (últimas evaluaciones con mejor puntaje total)
   const teacherLatestEvaluations = new Map<string, TeacherEvaluation>();
 
   // Obtener la evaluación más reciente de cada docente
@@ -168,19 +165,19 @@ const getDashboardStats = async (): Promise<DashboardStats> => {
       const teacher = teachers.find((t) => t.id === teacherId);
       if (!teacher) return null;
 
-      const averageScore = calculateAverageScore(evaluation);
+      const totalScore = calculateTotalScore(evaluation);
       return {
         teacher,
         evaluation,
-        averageScore,
+        totalScore,
       };
     })
     .filter((item) => item !== null)
-    .sort((a, b) => b!.averageScore - a!.averageScore)
+    .sort((a, b) => b!.totalScore - a!.totalScore)
     .slice(0, 5) as Array<{
     teacher: Teacher;
     evaluation: TeacherEvaluation;
-    averageScore: number;
+    totalScore: number;
   }>;
 
   return {

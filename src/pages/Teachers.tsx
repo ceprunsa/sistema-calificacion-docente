@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useTeachers, type TeachersFilters } from "../hooks/useTeachers";
 import { useTeacherEvaluationStatus } from "../hooks/useTeacherEvaluationStatus";
+import { useExportAllEvaluations } from "../hooks/useExportAllEvaluations";
 import type { Teacher, CourseType } from "../types/teacher";
 import {
   Plus,
@@ -17,6 +18,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Filter,
+  FileSpreadsheet,
 } from "lucide-react";
 import { capitalizeText } from "../utils/formatters";
 import { useAuth } from "../hooks/useAuth";
@@ -56,6 +58,8 @@ const Teachers = () => {
     deleteTeacher,
     isDeleting,
   } = useTeachers(currentPage, pageSize, filters);
+
+  const { exportAllEvaluations, isExporting } = useExportAllEvaluations();
 
   // Obtener IDs de profesores para verificar estado de evaluación
   const teacherIds = teachers.map((teacher) => teacher.id);
@@ -111,6 +115,10 @@ const Teachers = () => {
 
   const clearFilters = () => {
     setFilters({});
+  };
+
+  const handleExportAllToExcel = async () => {
+    await exportAllEvaluations(filters);
   };
 
   const handlePageChange = (page: number) => {
@@ -171,6 +179,15 @@ const Teachers = () => {
             >
               <Filter size={18} className="mr-1 md:mr-2" />
               <span>Filtros</span>
+            </button>
+            <button
+              onClick={handleExportAllToExcel}
+              disabled={isExporting}
+              className="btn btn-success inline-flex items-center disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Exportar todas las evaluaciones a Excel"
+            >
+              <FileSpreadsheet size={18} className="mr-1 md:mr-2" />
+              <span>{isExporting ? "Exportando..." : "Exportar Excel"}</span>
             </button>
             {isAdmin && (
               <>
@@ -514,7 +531,7 @@ const Teachers = () => {
         </div>
       )}
 
-      {/* Modal de confirmación de eliminación - mantener igual */}
+      {/* Modal de confirmación de eliminación */}
       {teacherToDelete && (
         <div className="fixed z-50 inset-0 overflow-y-auto">
           <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">

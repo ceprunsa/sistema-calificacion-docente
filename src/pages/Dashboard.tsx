@@ -315,7 +315,7 @@ const Dashboard = () => {
                     </div>
                     <div className="text-right">
                       <div className="font-bold text-green-600">
-                        {item.averageScore.toFixed(1)}/4.0
+                        {item.totalScore}/24
                       </div>
                       <div className="text-xs text-gray-500">
                         {new Date(item.evaluation.date).toLocaleDateString()}

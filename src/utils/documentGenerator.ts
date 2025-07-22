@@ -22,7 +22,7 @@ const getPerformanceDescription = (
   return descriptions[level as keyof typeof descriptions] || "";
 };
 
-const calculateAveragePerformance = (evaluation: TeacherEvaluation): number => {
+const calculateTotalScore = (evaluation: TeacherEvaluation): number => {
   const levels = [
     evaluation.performance1,
     evaluation.performance2,
@@ -47,17 +47,14 @@ const calculateAveragePerformance = (evaluation: TeacherEvaluation): number => {
     }
   });
 
-  return (
-    levelValues.reduce<number>((sum, value) => sum + value, 0) /
-    levelValues.length
-  );
+  return levelValues.reduce<number>((sum, value) => sum + value, 0);
 };
 
-const getAverageLevelText = (average: number): string => {
-  if (average >= 3.5) return "IV - Destacado";
-  if (average >= 2.5) return "III - Satisfactorio";
-  if (average >= 1.5) return "II - En proceso";
-  return "I - Inicio";
+const getTotalScoreText = (totalScore: number): string => {
+  if (totalScore >= 21) return "Destacado (21-24 puntos)";
+  if (totalScore >= 15) return "Satisfactorio (15-20 puntos)";
+  if (totalScore >= 9) return "En proceso (9-14 puntos)";
+  return "Inicio (6-8 puntos)";
 };
 
 const formatDate = (dateString: string): string => {
@@ -117,7 +114,7 @@ const getImageDimensions = (u8: Uint8Array): Dim =>
   getPngDimensions(u8) || getJpegDimensions(u8) || { w: 400, h: 300 };
 
 /* ---------------------- Escalado ---------------------- */
-const MAX_W = 580; // ~6 pulgadas dentro de márgenes Word (96 dpi)
+const MAX_W = 580; // ~6 pulgadas dentro de márgenes Word (96 dpi)
 const MAX_H = 760; // altura para que no invada el pie de página
 
 const constrain = ({ w, h }: Dim): Dim => {
@@ -163,7 +160,7 @@ export const generateEvaluationDocument = async (
       modules: [createImageModule()], // Crear nueva instancia cada vez
     });
 
-    const avg = calculateAveragePerformance(evaluation);
+    const totalScore = calculateTotalScore(evaluation);
 
     /* Datos para la plantilla */
     const data = {
@@ -191,9 +188,9 @@ export const generateEvaluationDocument = async (
       has_evidence_image: !!evaluation.evidenceImageBase64,
       evidence_image: evaluation.evidenceImageBase64 || "",
 
-      /* Promedio de desempeño */
-      average_performance: avg.toFixed(2),
-      average_level: getAverageLevelText(avg),
+      /* Puntaje total de desempeño */
+      total_score: totalScore.toString(),
+      total_score_text: getTotalScoreText(totalScore),
 
       /* Desempeños individuales */
       performance1_title: performanceTitles.performance1,
@@ -297,14 +294,14 @@ export const generateMultipleEvaluationsDocument = async (
     });
 
     const evaluations = evaluationsData.map(({ teacher, evaluation }) => {
-      const avg = calculateAveragePerformance(evaluation);
+      const totalScore = calculateTotalScore(evaluation);
       return {
         teacher_name: `${teacher.apellidos}, ${teacher.nombres}`,
         teacher_course: teacher.curso.toUpperCase(),
         evaluation_date: formatDate(evaluation.date),
         evaluator_name: evaluation.evaluatorName,
-        average_performance: avg.toFixed(2),
-        average_level: getAverageLevelText(avg),
+        total_score: totalScore.toString(),
+        total_score_text: getTotalScoreText(totalScore),
         has_evidence: !!evaluation.evidenceImageUrl,
         evidence_status: evaluation.evidenceImageUrl
           ? "Con evidencia"
