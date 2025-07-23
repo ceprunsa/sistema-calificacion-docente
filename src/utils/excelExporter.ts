@@ -57,6 +57,7 @@ export const exportTeacherEvaluationsToExcel = (
     Apellidos: teacher.apellidos,
     Nombres: teacher.nombres,
     Curso: teacher.curso.toUpperCase(),
+    Dni: teacher.dni,
     "Fecha de Evaluación": new Date(
       evaluation.date + "T00:00:00"
     ).toLocaleDateString("es-PE"),
@@ -94,6 +95,7 @@ export const exportTeacherEvaluationsToExcel = (
     { wch: 20 }, // Apellidos
     { wch: 20 }, // Nombres
     { wch: 25 }, // Curso
+    { wch: 15 }, // Dni
     { wch: 15 }, // Fecha de Evaluación
     { wch: 25 }, // Evaluador
     { wch: 18 }, // Fecha Diálogo Reflexivo
@@ -143,7 +145,8 @@ export const exportAllTeachersEvaluationsToExcel = (
         "N°": allData.length + 1,
         Apellidos: teacher.apellidos,
         Nombres: teacher.nombres,
-        Curso: teacher.curso,
+        Curso: teacher.curso.toUpperCase(),
+        Dni: teacher.dni,
         "Fecha de Evaluación": new Date(
           evaluation.date + "T00:00:00"
         ).toLocaleDateString("es-PE"),
@@ -183,6 +186,7 @@ export const exportAllTeachersEvaluationsToExcel = (
     { wch: 20 }, // Apellidos
     { wch: 20 }, // Nombres
     { wch: 25 }, // Curso
+    { wch: 15 }, // Dni
     { wch: 15 }, // Fecha de Evaluación
     { wch: 25 }, // Evaluador
     { wch: 18 }, // Fecha Diálogo Reflexivo
