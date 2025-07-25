@@ -58,6 +58,13 @@ export const exportTeacherEvaluationsToExcel = (
     Nombres: teacher.nombres,
     Curso: teacher.curso.toUpperCase(),
     Dni: teacher.dni,
+    Telefono: teacher.telefono,
+    Correo: teacher.correoPersonal,
+    CorreoInstitucional: teacher.correoInstitucional,
+    Turno1: teacher.horasPorTurno["turno 1"] || 0,
+    Turno2: teacher.horasPorTurno["turno 2"] || 0,
+    Turno3: teacher.horasPorTurno["turno 3"] || 0,
+    TotalHoras: teacher.totalHoras,
     "Fecha de Evaluación": new Date(
       evaluation.date + "T00:00:00"
     ).toLocaleDateString("es-PE"),
@@ -96,6 +103,13 @@ export const exportTeacherEvaluationsToExcel = (
     { wch: 20 }, // Nombres
     { wch: 25 }, // Curso
     { wch: 15 }, // Dni
+    { wch: 15 }, // Telefono
+    { wch: 25 }, // Correo Personal
+    { wch: 25 }, // Correo Institucional
+    { wch: 10 }, // Turno 1
+    { wch: 10 }, // Turno 2
+    { wch: 10 }, // Turno 3
+    { wch: 12 }, // Total Horas
     { wch: 15 }, // Fecha de Evaluación
     { wch: 25 }, // Evaluador
     { wch: 18 }, // Fecha Diálogo Reflexivo
@@ -147,6 +161,13 @@ export const exportAllTeachersEvaluationsToExcel = (
         Nombres: teacher.nombres,
         Curso: teacher.curso.toUpperCase(),
         Dni: teacher.dni,
+        Telefono: teacher.telefono,
+        Correo: teacher.correoPersonal,
+        CorreoInstitucional: teacher.correoInstitucional,
+        Turno1: teacher.horasPorTurno["turno 1"] || 0,
+        Turno2: teacher.horasPorTurno["turno 2"] || 0,
+        Turno3: teacher.horasPorTurno["turno 3"] || 0,
+        TotalHoras: teacher.totalHoras,
         "Fecha de Evaluación": new Date(
           evaluation.date + "T00:00:00"
         ).toLocaleDateString("es-PE"),
@@ -187,6 +208,13 @@ export const exportAllTeachersEvaluationsToExcel = (
     { wch: 20 }, // Nombres
     { wch: 25 }, // Curso
     { wch: 15 }, // Dni
+    { wch: 15 }, // Telefono
+    { wch: 25 }, // Correo Personal
+    { wch: 25 }, // Correo Institucional
+    { wch: 10 }, // Turno 1
+    { wch: 10 }, // Turno 2
+    { wch: 10 }, // Turno 3
+    { wch: 12 }, // Total Horas
     { wch: 15 }, // Fecha de Evaluación
     { wch: 25 }, // Evaluador
     { wch: 18 }, // Fecha Diálogo Reflexivo
