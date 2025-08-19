@@ -39,59 +39,57 @@ export interface EvaluationFormData
 // Descripciones de los niveles para cada desempeño
 export const performanceDescriptions = {
   performance1: {
-    I: "El docente ofrece muy poca oportunidad de participación del estudiante, dictando solo las diapositivas.",
-    II: "El docente explica las diapositivas resaltando con un lápiz digital, involucrando a los estudiantes a través del chat",
-    III: "El docente involucra a la gran mayoría de los estudiantes en el aprendizaje y expone con ayudas gráficas, las diapositivas.",
-    IV: "El docente involucra activamente a casi todos los estudiantes, preguntando personalizadamente, al azar. Expone con ayuda de graficadores, las diapositivas.",
+    I: "Su explicación es confusa, poco clara, con uso excesivo de jerga. No hay progresión lógica en los temas.",
+    II: "Su explicación generalmente es clara, pero con momentos de confusión o falta de fluidez.",
+    III: "La explicación es muy clara, lógica y fluida. Utiliza lenguaje comprensible y ejemplos pertinentes.",
+    IV: "Explica excepcionalmente con clara, concisa y cautivadora, la sesión de aprendizaje. Simplifica lo complejo con eficiencia y usa analogías conceptuales. Usa la clase invertida o entrega material extra, antes de la sesión.",
   },
   performance2: {
-    I: "El docente propone actividades o establece interacciones que estimulan únicamente el aprendizaje reproductivo memorístico.",
-    II: "El docente intenta promover el razonamiento, la creatividad y/o el pensamiento crítico al menos en una ocasión, pero no lo logra.",
-    III: "El docente promueve efectivamente el razonamiento, la creatividad y/o el pensamiento crítico al menos en una ocasión.",
-    IV: "El docente promueve efectivamente el razonamiento, la creatividad y/o el pensamiento crítico en la sesión, en su conjunto.",
+    I: "La clase predominantemente, es unilateral. Se observa pocas o nulas oportunidades para la participación de los estudiantes, a través del chat, los estudiantes no usan rl micro, porque el docente no lo promueve.",
+    II: "Intenta esporádicamente la interacción con los estudiantes, pero no logra una participación sostenida o equitativa, a través del chat y/o micro.",
+    III: "Fomenta activamente la participación mediante preguntas, encuestas o actividades. Escucha y responde a los estudiantes, a través del chat y/o micro.",
+    IV: "Empieza explorando saberes previos de los estudintes. Promueve una interacción constante y significativa. Utiliza diversas estrategias para involucrar a todos o casi todos los estudiantes, a través del chat y/o micro. Motiva al estudiante a lo largo de la clase.",
   },
   performance3: {
-    I: "El docente no monitorea, o ante las respuestas de los estudiantes, el docente da retroalimentación incorrecta o no da retroalimentación.",
-    II: "El docente monitorea activamente a los estudiantes, pero solo les brinda retroalimentación elemental.",
-    III: "El docente monitorea activamente a los estudiantes, y les brinda retroalimentación descriptiva.",
-    IV: "El docente monitorea activamente a los estudiantes y les brinda -al menos en una ocasión, en la sesión, retroalimentación por descubrimiento o reflexión.",
+    I: "Se observa en el docente dificultades frecuentes con el uso de la plataforma y herramientas. Problemas técnicos que interrumpen la clase.",
+    II: "Maneja lo básico de la plataforma; resuelve ocasionalmente problemas técnicos, el uso de recursos tecnológicos es limitado.",
+    III: "Maneja fluidamente la plataforma Meet y las herramientas básicas. Utiliza los recursos tecnológicos de manera efectiva para el aprendizaje. Usa lápices y resaltadores virtuales para aclarar las diapositivas. ",
+    IV: "Domina excepcional la plataforma Meet y herramientas avanzadas. Maximiza el potencial de la tecnología para la interacción, visualización y evaluación. Usa gamificaciones como Kahoot, Quizizz, Cerebriti, entre otras. Uso de Tableta gráfica.",
   },
   performance4: {
-    I: "Si hay faltas de respeto entre los estudiantes, el docente no interviene (o ignora el hecho). O el docente, en alguna ocasión, falta el respeto a uno o más estudiantes.",
-    II: "El docente es siempre respetuoso con los estudiantes, aunque frío o distante. Además, interviene si nota faltas de respeto al docente.",
-    III: "El docente es siempre respetuoso con los estudiantes, es cordial y les transmite calidez. Siempre se muestra empático con sus necesidades.",
-    IV: "El docente es siempre respetuoso con los estudiantes y muestra consideración hacia sus perspectivas. Es cordial con ellos y les transmite calidez. Siempre es empático.",
+    I: "Poca gestión del tiempo; temas incompletos o exceso de contenido. Su ritmo es inadecuado para el aprendizaje.",
+    II: "Gestiiona el tiempo aceptablemente, pero con algunas desviaciones. El ritmo podría ser más ajustado.",
+    III: "Gestiona eficientemente el tiempo, cubriendo los objetivos de la clase de manera adecuada. Su ritmo esequilibrado permitiendo la comprensión.",
+    IV: "Gestiona cronometrada del tiempo, optimizando cada minuto para el aprendizaje. Su ritmo es dinámico y adaptable a las necesidades de los estudiantes, haciendo pausas cada cierto tiempo, para evaluar lo explicado. ",
   },
   performance5: {
-    I: "Para prevenir o controlar el comportamiento inapropiado en el aula, el docente utiliza predominantemente mecanismos de control externo -negativos.",
-    II: "El docente utiliza predominantemente mecanismos formativos y nunca de maltrato para regular el comportamiento de los estudiantes, pero es poco eficaz.",
-    III: "El docente utiliza predominantemente mecanismos formativos -positivos- y nunca de maltrato para regular el comportamiento de los estudiantes de manera eficaz.",
-    IV: "El docente siempre utiliza mecanismos formativos -positivos- para regular el comportamiento de los estudiantes de manera eficaz.",
+    I: "La retroalimentación del docente es escasa, genérica o tardía. No utiliza la evaluación formativa durante la clase.",
+    II: "Retroalimenta ocasionalmente, a veces, poco específico. Utiliza algunas preguntas, pero sin un seguimiento claro.",
+    III: "Ofrece retroalimentación clara y específica durante la clase. Utiliza preguntas y actividades para verificar la comprensión.",
+    IV: "Ofrece retroalimentación reflexiva, personalizada. Diseña actividades de evaluación formativa innovadoras para monitorear el aprendizaje en tiempo real. Lo que planifica lo evalua, formativamente. Se organiza para evaluar poco a poco a los estudiantes a lo largo del tiempo.",
   },
   performance6: {
-    I: "El docente no añade tecnologías o muros de interacción con sus estudiantes, no permitiendo de esta manera la participación de sus estudiantes.",
-    II: "El docente utiliza al menos alguna tecnología como muros Padlet, en una ocación, para interactuar con sus estudiantes a través de la virtualidad.",
-    III: "El docente trabaja con pizarras interactivas para permitir la mayor participación de estudiantes, usando los muros de interacción Padlet, al menos más de una ocasión.",
-    IV: "El docente siempre utiliza pizarras interactivas y hace que sus estudiantes constantemente envíen respuestas a través de muros de participación cuando les pregunta.",
+    I: "El trato del docente es impersonal o distante. No genera un ambiente de confianza para los estudiantes.",
+    II: "Su trato, generalmente, es respetuoso, pero con poca expresión de empatía. No siempre logra conectar emocionalmente.",
+    III: "Establece un ambiente de respeto y confianza. Demuestra empatía al escuchar y atender las preocupaciones de los estudiantes.",
+    IV: "Crea un ambiente virtual excepcionalmente cálido, seguro y motivador. Muestra profunda empatía, comprensión y cercanía, fomentando el bienestar emocional. Conecta con la cámara para transmitir emociones.",
   },
 };
 
 // Títulos de los desempeños
 export const performanceTitles = {
-  performance1:
-    "Involucra activamente a los estudiantes en el proceso de aprendizaje",
-  performance2:
-    "Promueve el razonamiento, la creatividad y/o el pensamiento crítico",
-  performance3: "Evalúa el progreso de los aprendizajes para retroalimentar",
-  performance4: "Propicia un ambiente de respeto y proximidad",
-  performance5: "Regula positivamente el comportamiento de los estudiantes",
-  performance6: "Uso de ayudas tecnológicas para la enseñanza aprendizaje",
+  performance1: "Claridad y Coherencia en la Explicación",
+  performance2: "Fomento de la Participación e Interacción",
+  performance3: "Manejo de Herramientas Tecnológicas y Plataforma",
+  performance4: "Gestión del Tiempo y Ritmo de la Clase",
+  performance5: "Retroalimentación (Feedback) y Evaluación Formativa",
+  performance6: "Clima Emocional y Empatía",
 };
 
 // Descripción general de los niveles
 export const levelDescriptions = {
-  I: "No alcanzan a demostrar los aspectos mínimos del desempeño.",
-  II: "Se observa tanto logros como oportunidades de mejora que caracterizan al docente en este nivel.",
-  III: "Se observa la mayoría de conductas deseadas en el desempeño del docente.",
-  IV: "Se observa todas las conductas deseadas en el desempeño del docente.",
+  I: "Insuficiente (Necesita Mejora Sustancial)",
+  II: "En Desarrollo (Necesita Reforzamiento)",
+  III: "Competente (Desempeño Sólido)",
+  IV: "Sobresaliente (Ejemplar)",
 };
