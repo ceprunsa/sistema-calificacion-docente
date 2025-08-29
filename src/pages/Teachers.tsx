@@ -24,21 +24,21 @@ import { capitalizeText } from "../utils/formatters";
 import { useAuth } from "../hooks/useAuth";
 
 const COURSE_OPTIONS: CourseType[] = [
-  "biología",
-  "cívica",
-  "filosofía",
-  "física",
-  "geografía",
-  "historia",
-  "ingles",
-  "lenguaje",
-  "literatura",
-  "matemática",
-  "psicología",
-  "química",
-  "razonamiento lógico",
-  "razonamiento matemático",
-  "razonamiento verbal",
+  "BIOLOGÍA",
+  "CÍVICA",
+  "FILOSOFÍA",
+  "FÍSICA",
+  "GEOGRAFÍA",
+  "HISTORIA",
+  "INGLÉS",
+  "LENGUAJE",
+  "LITERATURA",
+  "MATEMÁTICA",
+  "PSICOLOGÍA",
+  "QUÍMICA",
+  "RAZONAMIENTO LÓGICO",
+  "RAZONAMIENTO MATEMÁTICO",
+  "RAZONAMIENTO VERBAL",
 ];
 
 const TURNO_OPTIONS = ["turno 1", "turno 2", "turno 3"];
@@ -109,7 +109,7 @@ const Teachers = () => {
   const handleFilterChange = (key: keyof TeachersFilters, value: string) => {
     setFilters((prev) => ({
       ...prev,
-      [key]: value.toLowerCase() || undefined,
+      [key]: value || undefined,
     }));
   };
 
