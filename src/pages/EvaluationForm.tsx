@@ -120,10 +120,10 @@ const EvaluationForm = () => {
   };
 
   const validateAndProcessFile = (file: File) => {
-    // Validar tamaño del archivo (400KB = 400 * 1024 bytes)
-    const maxSize = 400 * 1024;
+    // Validar tamaño del archivo (600KB = 600 * 1024 bytes)
+    const maxSize = 600 * 1024;
     if (file.size > maxSize) {
-      toast.error("La imagen no debe exceder los 400KB");
+      toast.error("La imagen no debe exceder los 600KB");
       return false;
     }
 
@@ -451,7 +451,7 @@ const EvaluationForm = () => {
                   {/* Imagen de evidencia */}
                   <div className="col-span-6">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Imagen de Evidencia (Opcional - Máximo 400KB)
+                      Imagen de Evidencia (Opcional - Máximo 600KB)
                     </label>
 
                     {!imagePreview ? (
@@ -508,7 +508,7 @@ const EvaluationForm = () => {
                               isDragOver ? "text-blue-600" : "text-gray-500"
                             }`}
                           >
-                            PNG, JPG, WebP hasta 400KB
+                            PNG, JPG, WebP hasta 600KB
                           </p>
                           {isDragOver && (
                             <p className="text-xs text-blue-600 font-medium">
