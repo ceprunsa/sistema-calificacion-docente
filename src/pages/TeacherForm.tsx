@@ -14,21 +14,21 @@ import { Save, X, Plus, Trash2 } from "lucide-react";
 import { capitalizeText } from "../utils/formatters";
 
 const COURSE_OPTIONS: CourseType[] = [
-  "biología",
-  "cívica",
-  "filosofía",
-  "física",
-  "geografía",
-  "historia",
-  "ingles",
-  "lenguaje",
-  "literatura",
-  "matemática",
-  "psicología",
-  "química",
-  "razonamiento lógico",
-  "razonamiento matemático",
-  "razonamiento verbal",
+  "BIOLOGÍA",
+  "CÍVICA",
+  "FILOSOFÍA",
+  "FÍSICA",
+  "GEOGRAFÍA",
+  "HISTORIA",
+  "INGLÉS",
+  "LENGUAJE",
+  "LITERATURA",
+  "MATEMÁTICA",
+  "PSICOLOGÍA",
+  "QUÍMICA",
+  "RAZONAMIENTO LÓGICO",
+  "RAZONAMIENTO MATEMÁTICO",
+  "RAZONAMIENTO VERBAL",
 ];
 
 const WORK_CONDITION_OPTIONS: WorkConditionType[] = [
@@ -50,7 +50,7 @@ const TeacherForm = () => {
     telefono: "",
     correoPersonal: "",
     correoInstitucional: "",
-    curso: "matemática",
+    curso: "MATEMÁTICA",
     condicionInstitucional: "tiempo completo",
     horasPorTurno: { "turno 1": 0 },
   });
