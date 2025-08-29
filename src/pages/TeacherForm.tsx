@@ -50,7 +50,7 @@ const TeacherForm = () => {
     telefono: "",
     correoPersonal: "",
     correoInstitucional: "",
-    curso: "MATEMÁTICA",
+    curso: "BIOLOGÍA",
     condicionInstitucional: "tiempo completo",
     horasPorTurno: { "turno 1": 0 },
   });
