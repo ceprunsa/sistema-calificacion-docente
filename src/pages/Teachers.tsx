@@ -109,7 +109,7 @@ const Teachers = () => {
   const handleFilterChange = (key: keyof TeachersFilters, value: string) => {
     setFilters((prev) => ({
       ...prev,
-      [key.toUpperCase()]: value.toUpperCase() || undefined,
+      [key]: value.toLowerCase() || undefined,
     }));
   };
 
