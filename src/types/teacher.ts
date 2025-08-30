@@ -5,7 +5,7 @@ export type CourseType =
   | "FÍSICA"
   | "GEOGRAFÍA"
   | "HISTORIA"
-  | "INGLÉS"
+  | "INGLES"
   | "LENGUAJE"
   | "LITERATURA"
   | "MATEMÁTICA"

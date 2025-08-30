@@ -30,7 +30,7 @@ const COURSE_OPTIONS: CourseType[] = [
   "FÍSICA",
   "GEOGRAFÍA",
   "HISTORIA",
-  "INGLÉS",
+  "INGLES",
   "LENGUAJE",
   "LITERATURA",
   "MATEMÁTICA",
